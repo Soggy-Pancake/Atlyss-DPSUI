@@ -1,0 +1,271 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using CodeTalker.Networking;
+using Mirror;
+using UnityEngine;
+
+namespace Atlyss_DPSUI {
+
+    public class DPSValues : Boolable {
+
+        public string steamID;
+        public string nickname;
+        public int totalDamage;
+        public string color;
+        public string classIcon;
+
+        public DPSValues() { }
+
+        public DPSValues(Player player, int initialDamage) {
+            steamID = player._steamID;
+            nickname = player._nickname;
+            totalDamage = initialDamage;
+
+            classIcon = "_clsIco_novice";
+            ScriptablePlayerBaseClass scriptablePlayerBaseClass = player._pStats._class;
+
+            if (player._pStats.Network_syncClassTier != 0)
+                classIcon = scriptablePlayerBaseClass._playerClassTiers[player._pStats.Network_syncClassTier - 1]._classTierIcon.name;
+            else
+                classIcon = scriptablePlayerBaseClass._classIcon.name;
+            
+
+            Color32 playerColor;
+            try {
+                playerColor = player._pVisual._blockOrbRender.material.GetColor("_EmissionColor");
+            } catch {
+                playerColor = scriptablePlayerBaseClass._blockEmissionColor;
+            }
+
+            color = ((uint)((playerColor.r << 24) | (playerColor.g << 16) | (playerColor.b << 8) | playerColor.a)).ToString("X");
+        }
+    }
+
+
+    internal class DungeonInstance {
+
+        public MapInstance map;
+        public PatternInstanceManager patternManager;
+        public CreepSpawner bossSpawner;
+        public Creep bossEntity;
+
+        public uint mapNetID;
+        public uint bossEntityNetID;
+
+        public long dungeonStartTime;
+        public long dungeonClearTime;
+        public long bossTeleportTime;
+        public long bossFightStartTime;
+        public long bossFightEndTime;
+
+        public float lastSentUpdate;
+
+        public List<DPSValues> bossDamage;
+        public List<DPSValues> totalDungeonDamage;
+
+        private bool haveLoadedPlayer;
+
+        public DungeonInstance(MapInstance newMap) {
+            map = newMap;
+            patternManager = map._patternInstance;
+            if (patternManager)
+                bossSpawner = patternManager._bossSpawner;
+
+            mapNetID = newMap.netId;
+            if (newMap._zoneType != ZoneType.Dungeon)
+                haveLoadedPlayer = true;
+
+            bossDamage = new List<DPSValues>();
+            totalDungeonDamage = new List<DPSValues>();
+        }
+
+        public void Print() {
+            Plugin.logger.LogInfo($"Dungeon instance ({map._mapName}) [netId: {mapNetID}]");
+            Plugin.logger.LogInfo($"Pattern manager: {patternManager}");
+
+            if (patternManager) {
+                Plugin.logger.LogInfo($"PatternInstance state: isBossEngaged {patternManager._isBossEngaged} netowrkversion {patternManager.Network_isBossEngaged}");
+                Plugin.logger.LogInfo($"Boss from pattern: {patternManager._bossSpawner._spawnedCreeps[0]}");
+            }
+
+            Plugin.logger.LogInfo("Dungeon cleared? " + ((dungeonClearTime != 0) ? "Yes" : "No"));
+
+            string bossStatus = "Dormant";
+            if (bossFightStartTime != 0)
+                bossStatus = "In battle";
+
+            if (bossFightEndTime != 0)
+                bossStatus = "Defeated";
+
+            Plugin.logger.LogInfo("Boss status: (" + bossStatus + ")");
+            if (bossEntity)
+                Plugin.logger.LogInfo($"Boss max hp: {bossEntity._statStruct._maxHealth}");
+
+            Plugin.logger.LogInfo($"Fight start time: {bossFightStartTime}");
+            Plugin.logger.LogInfo($"Fight end time: {bossFightEndTime}");
+            if (bossStatus == "Defeated")
+                Plugin.logger.LogInfo($"Boss defeated in {(bossFightEndTime - bossFightStartTime) / 1000f} seconds");
+
+            Plugin.logger.LogInfo("Current player boss damage totals: ");
+            foreach (DPSValues damage in bossDamage)
+                Plugin.logger.LogInfo($"{damage.nickname} ({damage.steamID}): {damage.totalDamage} damage");
+
+            Plugin.logger.LogInfo("Current player damage totals: ");
+            foreach (DPSValues val in totalDungeonDamage)
+                Plugin.logger.LogInfo($"{val.nickname} ({val.steamID}): {val.totalDamage} damage");
+        }
+
+        public void Update() {
+            if (!Plugin._SoloMode && Time.time >= lastSentUpdate + 1f && bossFightEndTime == 0 && (bossFightStartTime > 0 || dungeonStartTime > 0)) {
+                CodeTalkerNetwork.SendNetworkPacket(new DPSPacket(this));
+                Plugin.logger.LogDebug("Sent update packet");
+                lastSentUpdate = Time.time;
+            }
+
+            if (!haveLoadedPlayer) {
+                foreach (Player player in map._peersInInstance) {
+                    if (player && player.Network_currentGameCondition == GameCondition.IN_GAME) {
+                        haveLoadedPlayer = true;
+                        dungeonStartTime = DateTime.UtcNow.Ticks / 10000;
+                    }
+                }
+            }
+            if (patternManager) {
+                if (dungeonClearTime == 0 && patternManager.Network_allArenasBeaten) {
+                    dungeonClearTime = DateTime.UtcNow.Ticks / 10000;
+                    if (Plugin._SoloMode)
+                        Plugin.AddChatMessage($"[DPSUI] Dungeon cleared in {(float)(dungeonClearTime - dungeonStartTime) / 1000f} seconds! (all arenas beaten)");
+                }
+
+                if (patternManager._bossRoomTeleporter && bossTeleportTime == 0 && patternManager._bossRoomTeleporter.Network_allPlayersInTeleporter) {
+                    bossTeleportTime = DateTime.UtcNow.Ticks / 10000;
+                    if (Plugin._SoloMode)
+                        Plugin.AddChatMessage($"[DPSUI] Boss reached in {(float)(bossTeleportTime - dungeonStartTime) / 1000f} seconds!");
+                }
+
+                if (!patternManager.Network_isBossDefeated && patternManager.Network_isBossEngaged && bossFightStartTime == 0) {
+                    bossFightStartTime = DateTime.UtcNow.Ticks / 10000;
+                    Plugin.logger.LogInfo("boss engaged " + bossFightStartTime);
+
+                    if (bossSpawner && bossSpawner._spawnedCreeps.Count > 0) {
+                        bossEntity = bossSpawner._spawnedCreeps[0];
+                        bossEntityNetID = bossEntity.netId;
+
+                        if (bossEntity.Network_aggroedEntity._isPlayer)
+                            RecordDamage(bossEntity.Network_aggroedEntity._isPlayer, 0, true);
+
+                        foreach (Player player in bossSpawner._playersWithinSpawnerRadius)
+                            if (player)
+                                RecordDamage(player, 0, true);
+
+                    } else {
+                        Plugin.logger.LogError("Boss is engaged but boss not found!");
+                    }
+                }
+                if (patternManager.Network_isBossDefeated && bossFightStartTime > 0 && bossFightEndTime == 0) {
+                    bossFightEndTime = DateTime.UtcNow.Ticks / 10000;
+                    Plugin.logger.LogInfo("Dungeon Boss Beaten!");
+                    Print();
+                    Plugin.logger.LogInfo(" ");
+                    if (!Plugin._SoloMode && Plugin._AmServer) {
+                        CodeTalkerNetwork.SendNetworkPacket(new DPSPacket(this));
+                        Plugin.logger.LogWarning("Sent final update packet");
+                    }
+
+                    if (Plugin._SoloMode) {
+                        Plugin.AddChatMessage($"[DPSUI] Boss beaten in {(float)(bossFightEndTime - bossFightStartTime) / 1000f} seconds!");
+                        Plugin.AddChatMessage($"[DPSUI] Dungeon finished in {(float)(bossFightEndTime - dungeonStartTime) / 1000f} seconds!");
+                    }
+                }
+                return;
+            }
+            if (!bossSpawner) {
+                CreepSpawner[] array = Resources.FindObjectsOfTypeAll<CreepSpawner>();
+                foreach (CreepSpawner creepSpawner in array) {
+                    Debug.Log(creepSpawner.name + " spawn count: " + creepSpawner._creepCount);
+                    if (creepSpawner._creepToSpawn != null && PluginInfo.FIELD_BOSSES.Contains(creepSpawner._creepToSpawn._creepName)) {
+                        bossSpawner = creepSpawner;
+                        break;
+                    }
+                }
+                return;
+            }
+            if (bossFightStartTime == 0) {
+                if (!bossSpawner || bossSpawner._spawnedCreeps.Count == 0 || bossSpawner._spawnedCreeps[0] == null) {
+                    return;
+                }
+
+                if (bossEntity == null) {
+                    bossEntity = bossSpawner._spawnedCreeps[0];
+                    bossEntityNetID = bossEntity.netId;
+                }
+
+                if (bossEntity._aggroedEntity == null)
+                    return;
+
+                bossFightStartTime = DateTime.UtcNow.Ticks / 10000;
+                Plugin.logger.LogInfo($"field boss engaged {bossFightStartTime}");
+
+                if (bossEntity.Network_aggroedEntity._isPlayer)
+                    RecordDamage(bossEntity.Network_aggroedEntity._isPlayer, 0, true);
+
+                foreach (Player player in bossSpawner._playersWithinSpawnerRadius)
+                    RecordDamage(player, 0, true);
+            }
+            if (bossFightStartTime > 0 && bossFightEndTime == 0 && bossEntity._statusEntity._currentHealth <= 0) {
+                bossFightEndTime = DateTime.UtcNow.Ticks / 10000;
+                Plugin.logger.LogInfo("Field boss killed!");
+                Print();
+                Plugin.logger.LogInfo(" ");
+
+                if (!Plugin._SoloMode && Plugin._AmServer) {
+                    CodeTalkerNetwork.SendNetworkPacket(new DPSPacket(this));
+                    Plugin.logger.LogWarning("Sent final update packet");
+                }
+
+                if (Plugin._SoloMode) {
+                    Plugin.AddChatMessage($"[DPSUI] Boss beaten in {(float)(bossFightEndTime - bossFightStartTime) / 1000f} seconds!");
+                }
+
+                bossFightStartTime = 0;
+                bossFightEndTime = 0;
+                bossDamage.Clear();
+            }
+        }
+
+        public void RecordDamage(Player player, int damage, bool isBossDamage) {
+            if (!player)
+                return;
+
+            if (isBossDamage) {
+                bool foundPlayer = false;
+                for (int i = 0; i < bossDamage.Count; i++) {
+                    if (bossDamage[i].steamID == player._steamID) {
+                        foundPlayer = true;
+                        bossDamage[i].totalDamage += damage;
+                    }
+                }
+
+                if (!foundPlayer)
+                    bossDamage.Add(new DPSValues(player, damage));
+            } else {
+                if (player.Network_playerMapInstance._zoneType != ZoneType.Dungeon)
+                    return;
+
+                bool foundPlayer = false;
+                for (int i = 0; i < totalDungeonDamage.Count; i++) {
+                    if (totalDungeonDamage[i].steamID == player._steamID) {
+                        foundPlayer = true;
+                        totalDungeonDamage[i].totalDamage += damage;
+                    }
+                }
+
+                if (!foundPlayer)
+                    totalDungeonDamage.Add(new DPSValues(player, damage));
+            }
+        }
+    }
+}
