@@ -51,7 +51,13 @@
     <!-- Ensure staging directory exists? -->
     <MakeDir Directories="$(StagingDir)" />
 
-    <Message Text="Copying staging files to $(StagingDir)" Importance="High" />
+	<Message Text="Clearing staging files in $(StagingDir)\*.*" Importance="High" />
+	<ItemGroup>
+		<FilesInStagingFolder Include="$(StagingDir)\*.*" />
+	</ItemGroup>
+	<Delete Files="@(FilesInStagingFolder)" ContinueOnError="false" />
+
+	<Message Text="Copying staging files to $(StagingDir)" Importance="High" />
 
     <Copy
       SourceFiles="@(StagingFiles)"
