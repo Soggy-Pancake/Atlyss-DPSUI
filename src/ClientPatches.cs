@@ -12,9 +12,10 @@ namespace Atlyss_DPSUI {
 
         internal static int _helloRetryCount;
         internal static float _helloRetryLast;
+        static float clientRetryDelay = 6f;
 
         internal static void ClientSendHello(bool force = false) {
-            if (force || (!Player._mainPlayer._isHostPlayer && !(_helloRetryLast > Time.time - 6f))) {
+            if (force || (!Player._mainPlayer._isHostPlayer && !(_helloRetryLast > Time.time - clientRetryDelay))) {
                 _helloRetryCount++;
                 Plugin.logger.LogDebug($"Sending hello packet (Attempt {_helloRetryCount})");
 
@@ -28,14 +29,12 @@ namespace Atlyss_DPSUI {
         }
 
         internal static void Client_RecieveHello(PacketHeader header, PacketBase packet) {
-            if (Plugin.player.NC()?.Network_isHostPlayer == true || !(packet is DPSServerHelloPacket dPSServerHelloPacket))
+            if (!Plugin._serverSupport && !header.SenderIsLobbyOwner && Plugin.player.NC()?.Network_isHostPlayer == true || !(packet is DPSServerHelloPacket dPSServerHelloPacket))
                 return;
             
-            Plugin.logger.LogInfo("Client recieved hello. Server DPSUI version is " + dPSServerHelloPacket.version);
-            if (!header.SenderIsLobbyOwner)
-                return;
-
             if (dPSServerHelloPacket.response == "Hello") {
+                Plugin.logger.LogInfo("Client recieved hello. Server DPSUI version is " + dPSServerHelloPacket.version);
+
                 if (dPSServerHelloPacket.version != PluginInfo.VERSION) {
                     Plugin.logger.LogWarning("Server version mismatch!");
                     Player._mainPlayer._chatBehaviour.New_ChatMessage("<color=#fce75d>Server AtlyssDPSUI Version mismatch! (Server version: " + dPSServerHelloPacket.version + ")</color>");
@@ -61,8 +60,8 @@ namespace Atlyss_DPSUI {
         [HarmonyPostfix]
         internal static void OnMapChanged(MapInstance _old, MapInstance _new) {
             if (_new != _old) {
-                if (!Plugin._serverSupport && _helloRetryCount < 5)
-                    ClientSendHello();
+                //if (!Plugin._serverSupport && _helloRetryCount < 5)
+                //    ClientSendHello();
 
                 Plugin.player = Player._mainPlayer;
                 Plugin._AmServer = Player._mainPlayer.Network_isHostPlayer;
