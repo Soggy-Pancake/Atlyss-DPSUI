@@ -1,3 +1,8 @@
+## 1.0.2 and 1.0.1
+- Fixed packets still using static version string from recovery
+- Fixed client ignoring hello packets if not host (I forgot to fix the check at some point)
+  - *Im a bit retarded*
+
 ## 1.0.0
 - Recovered from losing the project files >~<
 - **ThunderStore release!**

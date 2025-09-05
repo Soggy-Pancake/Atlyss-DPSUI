@@ -1,7 +1,7 @@
 {
     "name": "Atlyss_DPSUI",
     "description": "A BepInEx mod that lets you see your current DPS with multiplayer support! (Requires mod to be installed on the server)",
-    "version_number": "1.0.1",
+    "version_number": "1.0.2",
     "website_url": "https://github.com/Soggy-Pancake/Atlyss-DPSUI",
     "dependencies": [
         "BepInEx-BepInExPack-5.4.2100",
