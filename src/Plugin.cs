@@ -192,7 +192,7 @@ namespace Atlyss_DPSUI {
                         dungeonInstance.Update();
                     }
                 }
-            } else if (!_serverSupport && player && ClientPatches._helloRetryCount < 5) {
+            } else if (!_serverSupport && player.NC()?.Network_currentGameCondition == GameCondition.IN_GAME && ClientPatches._helloRetryCount < 5) {
                 ClientPatches.ClientSendHello();
             }
 
