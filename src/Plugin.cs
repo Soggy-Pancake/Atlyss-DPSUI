@@ -100,6 +100,7 @@ namespace Atlyss_DPSUI {
                 CodeTalkerNetwork.RegisterListener<DPSServerHelloPacket>(ClientPatches.Client_RecieveHello);
                 CodeTalkerNetwork.RegisterListener<DPSPacket>(Client_ParseDungeonPartyDamage);
             } else {
+                logger.LogWarning("Headless mode detected!");
                 _serverSupport = _AmHeadless = true;
             }
 
