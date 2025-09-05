@@ -7,7 +7,7 @@
 
     <PropertyGroup>
 		<!-- Edit these 2 things -->
-        <GameDir>/full/path/to/game</GameDir>
+        <GameDir>\full\path\to\game</GameDir>
         <ProfileDir>\path\to\r2mm\profile\</ProfileDir>
 
 		<PluginsDir>$(ProfileDir)\BepInEx\plugins</PluginsDir>
