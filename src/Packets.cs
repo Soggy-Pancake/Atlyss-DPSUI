@@ -60,7 +60,7 @@ namespace Atlyss_DPSUI {
 
     public class DPSClientHelloPacket : PacketBase {
         [JsonProperty]
-        public string version = "0.0.2";
+        public string version = PluginInfo.VERSION;
 
         [JsonProperty]
         public string nickname = "null";
@@ -73,7 +73,7 @@ namespace Atlyss_DPSUI {
         public string response = "Hello";
 
         [JsonProperty]
-        public string version = "0.0.2";
+        public string version = PluginInfo.VERSION;
 
         public override string PacketSourceGUID => PluginInfo.GUID;
     }
