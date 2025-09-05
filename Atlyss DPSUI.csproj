@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<AssemblyName>Atlyss_DPSUI</AssemblyName>
 		<Authors>Soggy_Pancake</Authors>
-		<Version>1.0.0</Version>
+		<Version>1.0.5</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -38,5 +38,10 @@
 		<Reference Include="$(PluginsDir)\Robyn-CodeTalker\CodeTalker.dll" Private="False" />
 		<Reference Include="$(PluginsDir)\Nessie-EasySettings\EasySettings.dll" Private="False" />
 	</ItemGroup>
+
+	<Target Name="AllignVersions" BeforeTargets="BeforeBuild">
+		<Message Text="Setting AssemblyVersion to $(Version)" Importance="High" />
+		<Exec Command="python VersionNumFixer.py $(Version)" WorkingDirectory="$(SolutionRoot)" />
+	</Target>
 
 </Project>
