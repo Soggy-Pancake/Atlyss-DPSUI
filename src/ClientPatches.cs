@@ -28,16 +28,14 @@ namespace Atlyss_DPSUI {
         }
 
         internal static void Client_RecieveHello(PacketHeader header, PacketBase packet) {
-            if (!(packet is DPSServerHelloPacket dPSServerHelloPacket)) {
+            if (Plugin.player.NC()?.Network_isHostPlayer == true || !(packet is DPSServerHelloPacket dPSServerHelloPacket))
                 return;
-            }
+            
             Plugin.logger.LogInfo("Client recieved hello. Server DPSUI version is " + dPSServerHelloPacket.version);
-            if (!header.SenderIsLobbyOwner) {
+            if (!header.SenderIsLobbyOwner)
                 return;
-            }
 
-            Player player = Player._mainPlayer.NC();
-            if (player.NC()?.Network_isHostPlayer == true && dPSServerHelloPacket.response == "Hello") {
+            if (dPSServerHelloPacket.response == "Hello") {
                 if (dPSServerHelloPacket.version != PluginInfo.VERSION) {
                     Plugin.logger.LogWarning("Server version mismatch!");
                     Player._mainPlayer._chatBehaviour.New_ChatMessage("<color=#fce75d>Server AtlyssDPSUI Version mismatch! (Server version: " + dPSServerHelloPacket.version + ")</color>");
