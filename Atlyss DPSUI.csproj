@@ -3,7 +3,9 @@
 	<PropertyGroup>
 		<AssemblyName>Atlyss_DPSUI</AssemblyName>
 		<Authors>Soggy_Pancake</Authors>
-		<Version>1.0.5</Version>
+		
+		<!-- Version is automatically copied to source files on build -->
+		<Version>1.0.1</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
