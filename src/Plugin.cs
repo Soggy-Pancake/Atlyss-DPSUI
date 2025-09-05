@@ -219,7 +219,7 @@ namespace Atlyss_DPSUI {
             Player mainPlayer = Player._mainPlayer;
             if (SceneManager.sceneCount >= 2) {
                 ClientPatches.ClientSendHello(force: true);
-                mainPlayer.NC()?._chatBehaviour.NC()?.New_ChatMessage("<color=#fce75d>Server AtlyssDPSUI Version mismatch! (Server version: LogFullHierarchyTest)</color>");
+                //mainPlayer.NC()?._chatBehaviour.NC()?.New_ChatMessage("<color=#fce75d>Server AtlyssDPSUI Version mismatch! (Server version: LogFullHierarchyTest)</color>");
                 logger.LogInfo("Am host: " + (mainPlayer.NC()?.Network_isHostPlayer != null ? "yes" : "nah"));
                 logger.LogInfo("_AmHeadless " + _AmHeadless);
                 logger.LogInfo("Server support " + _serverSupport);
