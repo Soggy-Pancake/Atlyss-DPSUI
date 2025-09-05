@@ -14,26 +14,20 @@ namespace Atlyss_DPSUI {
     internal static class DPSUI_Config {
 
 	    internal static ConfigFile config;
+
         internal static ConfigEntry<KeyCode> togglePartyUIBind;
-
         internal static ConfigEntry<KeyCode> toggleLocalUIBind;
-
         internal static ConfigEntry<KeyCode> switchPartyUITypeBind;
 
         internal static ConfigEntry<float> transitionTime;
-
         internal static ConfigEntry<float> damageHoldTime;
 
         internal static ConfigEntry<bool> keepDamageUntilPause;
-
         internal static ConfigEntry<bool> showFullDungeonDamage;
-
         internal static ConfigEntry<bool> showLocalUI;
-
         internal static ConfigEntry<bool> showPartyUI;
 
         internal static ConfigEntry<string> backgroundImage;
-
         internal static ConfigEntry<string> textFont;
 
         public static void init(ConfigFile _config) {
