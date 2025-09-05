@@ -15,6 +15,7 @@ It does still work as a client only mod but it only tracks damage that you do yo
 Make a copy of `Config.Build.user.props.template` and remove `.template`. Then set `GameDir` and `ProfileDir`.
 - `GameDir` Points to the same folder as `ATLYSS.exe`
 - `ProfileDir` Points to your thunderstore profile folder.
+- **ONLY** edit the version number in the .csproj file. The python script will set the version numbers for the build and package manifest.
 
 Then build.
 
