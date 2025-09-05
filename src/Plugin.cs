@@ -225,12 +225,13 @@ namespace Atlyss_DPSUI {
                 logger.LogInfo("Server support " + _serverSupport);
                 logger.LogInfo("AmServer " + _serverSupport);
                 logger.LogInfo("last dps packet " + lastDPSPacket);
-                Debug.Log("\nSpawners:");
+                if(_AmServer){
                     logger.LogInfo("\nSpawners:");
                 CreepSpawner[] array = Resources.FindObjectsOfTypeAll<CreepSpawner>();
                 foreach (CreepSpawner creepSpawner in array) {
                         logger.LogInfo(creepSpawner.name + " spawn count: " + creepSpawner._creepCount);
                 }
+            }
             }
 
             logger.LogInfo(mainPlayer.NC()?._playerMapInstance.NC()?.name);
