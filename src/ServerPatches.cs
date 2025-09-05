@@ -13,7 +13,7 @@ namespace Atlyss_DPSUI {
     internal class ServerPatches {
         internal static void Server_RecieveHello(PacketHeader header, PacketBase packet) {
             if (packet is DPSClientHelloPacket dPSClientHelloPacket && Player._mainPlayer.NC()?.Network_isHostPlayer == true && !header.SenderIsLobbyOwner) {
-                Debug.Log((object)("Server replying to client! (" + dPSClientHelloPacket.nickname + ")"));
+                Plugin.logger.LogInfo("Server replying to client! (" + dPSClientHelloPacket.nickname + ")");
 
                 CodeTalkerNetwork.SendNetworkPacket(new DPSServerHelloPacket());
             }

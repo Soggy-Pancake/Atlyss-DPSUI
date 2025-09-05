@@ -285,11 +285,11 @@ namespace Atlyss_DPSUI {
             if (InGameUI._current) {
                 UI_font = Resources.GetBuiltinResource<Font>("Arial.ttf");
 
-                GameObject val2 = new GameObject("DPSUI", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-                setupMainCanvas(val2);
-                Debug.Log((object)$"root {val2}");
+                GameObject rootCanvas = new GameObject("DPSUI", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+                setupMainCanvas(rootCanvas);
+                Plugin.logger.LogInfo($"root {rootCanvas}");
                 GameObject localDPSContainer = new GameObject("localDPS", typeof(RectTransform));
-                RectTransform obj = setupRectTransform(localDPSContainer, DPS_Pos, val2);
+                RectTransform obj = setupRectTransform(localDPSContainer, DPS_Pos, rootCanvas);
                 obj.sizeDelta = new Vector2(150f, 50f);
                 obj.anchoredPosition = Vector2.zero;
                 localDpsTransform = obj;
@@ -308,7 +308,7 @@ namespace Atlyss_DPSUI {
                 backgroundImage.filterMode = FilterMode.Point;
 
                 GameObject partyContainer = new GameObject("partyDPS", typeof(RectTransform));
-                RectTransform partyTransform = setupRectTransform(partyContainer, Vector2.zero, val2, true);
+                RectTransform partyTransform = setupRectTransform(partyContainer, Vector2.zero, rootCanvas, true);
                 partyTransform.anchorMin = PartyDPS_MinPos;
                 partyTransform.anchorMax = PartyDPS_MaxPos;
                 partyTransform.sizeDelta = Vector2.zero;
@@ -322,7 +322,7 @@ namespace Atlyss_DPSUI {
                 );
 
                 GameObject partyLabelContainer = new GameObject("DPS Label", typeof(RectTransform));
-                RectTransform obj6 = setupRectTransform(partyLabelContainer, new Vector2(0f, 1f), val2, true);
+                RectTransform obj6 = setupRectTransform(partyLabelContainer, new Vector2(0f, 1f), rootCanvas, true);
                 obj6.anchorMin = new Vector2(PartyDPS_MinPos.x, PartyDPS_MaxPos.y);
                 obj6.anchorMax = new Vector2(PartyDPS_MaxPos.x, PartyDPS_MaxPos.y + 0.04f);
                 obj6.sizeDelta = Vector2.zero;
@@ -382,7 +382,7 @@ namespace Atlyss_DPSUI {
                 localDpsContainer.SetActive(false);
 
                 UpdateVisibility();
-                Debug.Log("Created dps ui!");
+                Plugin.logger.LogInfo("Created dps ui!");
             }
 
             void setupMainCanvas(GameObject canvasObj) {

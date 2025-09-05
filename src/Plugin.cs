@@ -220,37 +220,38 @@ namespace Atlyss_DPSUI {
             if (SceneManager.sceneCount >= 2) {
                 ClientPatches.ClientSendHello(force: true);
                 mainPlayer.NC()?._chatBehaviour.NC()?.New_ChatMessage("<color=#fce75d>Server AtlyssDPSUI Version mismatch! (Server version: LogFullHierarchyTest)</color>");
-                Debug.Log("Am host: " + (mainPlayer.NC()?.Network_isHostPlayer != null ? "yes" : "nah"));
-                Debug.Log("_AmHeadless " + _AmHeadless);
-                Debug.Log("Server support " + _serverSupport);
-                Debug.Log("AmServer " + _serverSupport);
-                Debug.Log("last dps packet " + lastDPSPacket);
+                logger.LogInfo("Am host: " + (mainPlayer.NC()?.Network_isHostPlayer != null ? "yes" : "nah"));
+                logger.LogInfo("_AmHeadless " + _AmHeadless);
+                logger.LogInfo("Server support " + _serverSupport);
+                logger.LogInfo("AmServer " + _serverSupport);
+                logger.LogInfo("last dps packet " + lastDPSPacket);
                 Debug.Log("\nSpawners:");
+                    logger.LogInfo("\nSpawners:");
                 CreepSpawner[] array = Resources.FindObjectsOfTypeAll<CreepSpawner>();
                 foreach (CreepSpawner creepSpawner in array) {
-                    Debug.Log(creepSpawner.name + " spawn count: " + creepSpawner._creepCount);
+                        logger.LogInfo(creepSpawner.name + " spawn count: " + creepSpawner._creepCount);
                 }
             }
 
-            Debug.Log(mainPlayer.NC()?._playerMapInstance.NC()?.name);
-            Debug.Log(mainPlayer.NC()?._playerMapInstance.NC()?._zoneType);
-            Debug.Log($"Loaded scenes: {SceneManager.sceneCount}");
+            logger.LogInfo(mainPlayer.NC()?._playerMapInstance.NC()?.name);
+            logger.LogInfo(mainPlayer.NC()?._playerMapInstance.NC()?._zoneType);
+            logger.LogInfo($"Loaded scenes: {SceneManager.sceneCount}");
 
             for (int j = 0; j < SceneManager.sceneCount; j++) {
                 Scene scene = SceneManager.GetSceneAt(j);
-                Debug.Log("Loaded scene: " + scene.name);
+                logger.LogInfo("Loaded scene: " + scene.name);
             }
         }
 
         public static void LogHierarchy(Transform root, int depth = 0) {
-            Debug.Log(new string(' ', depth * 2) + root.name);
+            logger.LogInfo(new string(' ', depth * 2) + root.name);
             if (!root.name.StartsWith("_player(") && !root.name.StartsWith("_raceModelDisplayDolly")) {
                 foreach (Transform item in root) {
                     LogHierarchy(item, depth + 1);
                 }
                 return;
             }
-            Debug.Log(new string(' ', (depth + 1) * 2) + "...");
+            logger.LogInfo(new string(' ', (depth + 1) * 2) + "...");
         }
     }
 }

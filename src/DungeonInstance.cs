@@ -185,7 +185,7 @@ namespace Atlyss_DPSUI {
             if (!bossSpawner) {
                 CreepSpawner[] array = Resources.FindObjectsOfTypeAll<CreepSpawner>();
                 foreach (CreepSpawner creepSpawner in array) {
-                    Debug.Log(creepSpawner.name + " spawn count: " + creepSpawner._creepCount);
+                    Plugin.logger?.LogInfo(creepSpawner.name + " spawn count: " + creepSpawner._creepCount);
                     if (creepSpawner._creepToSpawn != null && PluginInfo.FIELD_BOSSES.Contains(creepSpawner._creepToSpawn._creepName)) {
                         bossSpawner = creepSpawner;
                         break;
