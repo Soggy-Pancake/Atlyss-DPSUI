@@ -472,7 +472,7 @@ namespace Atlyss_DPSUI {
                     addedLocalPlayer = true;
                 
                 if (i < 4 || addedLocalPlayer || !(v.steamID != playerSteamID)) {
-                    memberBars[i].UpdateInfo(v, fillPercent);
+                    memberBars[Math.Min(4, i)].UpdateInfo(v, fillPercent);
                     if (i >= 4 && addedLocalPlayer)
                         break;
                 }
