@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Nessie.ATLYSS.EasySettings;
-using static System.Runtime.CompilerServices.RuntimeHelpers;
 using BepInEx.Configuration;
 using BepInEx.Bootstrap;
 using UnityEngine;
@@ -13,7 +12,7 @@ using UnityEngine;
 namespace Atlyss_DPSUI {
     internal static class DPSUI_Config {
 
-	    internal static ConfigFile config;
+        internal static ConfigFile config;
 
         internal static ConfigEntry<KeyCode> togglePartyUIBind;
         internal static ConfigEntry<KeyCode> toggleLocalUIBind;
@@ -51,6 +50,8 @@ namespace Atlyss_DPSUI {
 
             if (Chainloader.PluginInfos.ContainsKey("EasySettings")) {
                 Settings.OnInitialized.AddListener(addEasySettings);
+            } else {
+                Plugin.logger.LogWarning("Soft dependency EasySettings not found!");
             }
 
             Plugin.logger.LogInfo("Config initalized!");
@@ -58,6 +59,7 @@ namespace Atlyss_DPSUI {
             DPSUI_GUI.userShowLocalUI = showLocalUI.Value;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private static void addEasySettings() {
             SettingsTab modTab = Settings.ModTab;
             modTab.AddHeader("Atlyss DPSUI");
