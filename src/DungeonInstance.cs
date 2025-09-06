@@ -119,7 +119,7 @@ namespace Atlyss_DPSUI {
         }
 
         public void Update() {
-            if (!Plugin._SoloMode && Time.time >= lastSentUpdate + 1f && bossFightEndTime == 0 && (bossFightStartTime > 0 || dungeonStartTime > 0)) {
+            if (!Plugin._SoloMode && Time.time >= lastSentUpdate + PluginInfo.CLIENT_UPDATE_RATE && (dungeonStartTime > 0 || (bossFightEndTime == 0 && bossFightStartTime > 0))) {
                 CodeTalkerNetwork.SendNetworkPacket(new DPSPacket(this));
                 Plugin.logger.LogDebug("Sent update packet");
                 lastSentUpdate = Time.time;
@@ -191,12 +191,13 @@ namespace Atlyss_DPSUI {
                         break;
                     }
                 }
-                return;
+
+                if (!bossSpawner)
+                    return;
             }
             if (bossFightStartTime == 0) {
-                if (!bossSpawner || bossSpawner._spawnedCreeps.Count == 0 || bossSpawner._spawnedCreeps[0] == null) {
+                if (!bossSpawner || bossSpawner._spawnedCreeps.Count == 0 || bossSpawner._spawnedCreeps[0] == null)
                     return;
-                }
 
                 if (bossEntity == null) {
                     bossEntity = bossSpawner._spawnedCreeps[0];
