@@ -471,7 +471,7 @@ namespace Atlyss_DPSUI {
                     addedLocalPlayer = true;
                 
                 if (i < 4 || addedLocalPlayer || !(v.steamID != playerSteamID)) {
-                    memberBars[i].UpdateInfo(v, v.totalDamage / Math.Max(values[0].totalDamage, 1));
+                    memberBars[i].UpdateInfo(v, v.totalDamage / Mathf.Max(values[0].totalDamage, 1));
                     if (i >= 4 && addedLocalPlayer)
                         break;
                 }
