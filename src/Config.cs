@@ -49,7 +49,7 @@ namespace Atlyss_DPSUI {
             textFont = config.Bind("General", "textFont", "", "Path of the font to use");
 
             if (Chainloader.PluginInfos.ContainsKey("EasySettings")) {
-                Settings.OnInitialized.AddListener(addEasySettings);
+                addEasySettings();
             } else {
                 Plugin.logger.LogWarning("Soft dependency EasySettings not found!");
             }
@@ -61,17 +61,21 @@ namespace Atlyss_DPSUI {
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         private static void addEasySettings() {
-            SettingsTab modTab = Settings.ModTab;
-            modTab.AddHeader("Atlyss DPSUI");
-            modTab.AddToggle(showPartyUI);
-            modTab.AddToggle(showLocalUI);
-            modTab.AddKeyButton(togglePartyUIBind);
-            modTab.AddKeyButton(toggleLocalUIBind);
-            modTab.AddKeyButton("Switch UI Mode", switchPartyUITypeBind);
-            modTab.AddAdvancedSlider(transitionTime);
-            modTab.AddAdvancedSlider(damageHoldTime, wholeNumbers: true);
-            modTab.AddToggle(keepDamageUntilPause);
-            modTab.AddToggle(showFullDungeonDamage);
+            Settings.OnInitialized.AddListener(ActuallyAdd);
+
+            void ActuallyAdd() {
+                SettingsTab modTab = Settings.ModTab;
+                modTab.AddHeader("Atlyss DPSUI");
+                modTab.AddToggle(showPartyUI);
+                modTab.AddToggle(showLocalUI);
+                modTab.AddKeyButton(togglePartyUIBind);
+                modTab.AddKeyButton(toggleLocalUIBind);
+                modTab.AddKeyButton("Switch UI Mode", switchPartyUITypeBind);
+                modTab.AddAdvancedSlider(transitionTime);
+                modTab.AddAdvancedSlider(damageHoldTime, wholeNumbers: true);
+                modTab.AddToggle(keepDamageUntilPause);
+                modTab.AddToggle(showFullDungeonDamage);
+            }
         }
     }
 }
