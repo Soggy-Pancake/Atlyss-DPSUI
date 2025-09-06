@@ -153,27 +153,29 @@ namespace Atlyss_DPSUI {
                 }
             }
 
-            if (Input.GetKeyDown(DPSUI_Config.togglePartyUIBind.Value)) {
-                DPSUI_Config.showPartyUI.Value = (DPSUI_GUI.userShowPartyUI = !DPSUI_GUI.userShowPartyUI);
-                AddGameFeedMessage((DPSUI_GUI.userShowPartyUI ? "Enabled" : "Disabled") + " party UI");
-            }
+            if (!player._inChat && !player._inUI) {
+                if (Input.GetKeyDown(DPSUI_Config.togglePartyUIBind.Value)) {
+                    DPSUI_Config.showPartyUI.Value = (DPSUI_GUI.userShowPartyUI = !DPSUI_GUI.userShowPartyUI);
+                    AddGameFeedMessage((DPSUI_GUI.userShowPartyUI ? "Enabled" : "Disabled") + " party UI");
+                }
 
-            if (Input.GetKeyDown(DPSUI_Config.toggleLocalUIBind.Value)) {
-                DPSUI_Config.showLocalUI.Value = (DPSUI_GUI.userShowLocalUI = !DPSUI_GUI.userShowLocalUI);
-                AddGameFeedMessage((DPSUI_GUI.userShowLocalUI ? "Enabled" : "Disabled") + " local UI");
-            }
+                if (Input.GetKeyDown(DPSUI_Config.toggleLocalUIBind.Value)) {
+                    DPSUI_Config.showLocalUI.Value = (DPSUI_GUI.userShowLocalUI = !DPSUI_GUI.userShowLocalUI);
+                    AddGameFeedMessage((DPSUI_GUI.userShowLocalUI ? "Enabled" : "Disabled") + " local UI");
+                }
 
-            if (Input.GetKeyDown(DPSUI_Config.switchPartyUITypeBind.Value)) {
+                if (Input.GetKeyDown(DPSUI_Config.switchPartyUITypeBind.Value)) {
 
-                if (DPSUI_GUI._UIMode == UIMode.Auto)
-                    DPSUI_GUI._UIMode = UIMode.Party;
-                else if (DPSUI_GUI._UIMode == UIMode.Party)
-                    DPSUI_GUI._UIMode = UIMode.Boss;
-                else if (DPSUI_GUI._UIMode == UIMode.Boss)
-                    DPSUI_GUI._UIMode = UIMode.Auto;
-               
-                AddGameFeedMessage($"Set UI Mode to {DPSUI_GUI._UIMode}");
-                DPSUI_GUI._UI?.UpdatePartyDamageValues(lastDPSPacket);
+                    if (DPSUI_GUI._UIMode == UIMode.Auto)
+                        DPSUI_GUI._UIMode = UIMode.Party;
+                    else if (DPSUI_GUI._UIMode == UIMode.Party)
+                        DPSUI_GUI._UIMode = UIMode.Boss;
+                    else if (DPSUI_GUI._UIMode == UIMode.Boss)
+                        DPSUI_GUI._UIMode = UIMode.Auto;
+
+                    AddGameFeedMessage($"Set UI Mode to {DPSUI_GUI._UIMode}");
+                    DPSUI_GUI._UI?.UpdatePartyDamageValues(lastDPSPacket);
+                }
             }
         }
 
