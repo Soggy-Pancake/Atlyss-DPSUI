@@ -6,6 +6,7 @@
 - Ignoring keybinds if in menu or chat now
 - Fix field bosses sending an extra packet on death that had the damage values cleared.
 	- This stopped you from being able to look at the damage values after a boss was killed
+- Prevent going out of bounds when player is lower than 5th on the leaderboard.
 
 ## 1.0.2
 - Fixed client ignoring hello packets if not host (I forgot to fix the check at some point)
