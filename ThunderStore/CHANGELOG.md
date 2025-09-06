@@ -1,7 +1,18 @@
-## 1.0.2 and 1.0.1
-- Fixed packets still using static version string from recovery
+## 1.0.3
+- Fix party member fill bars being given an int for the fill percentage
+- Actually fixed the client ignoring hello packets if not host
+	- *Im actually retarded*
+- EasySettings is actually a soft dependency now
+- Ignoring keybinds if in menu or chat now
+- Fix field bosses sending an extra packet on death that had the damage values cleared.
+	- This stopped you from being able to look at the damage values after a boss was killed
+
+## 1.0.2
 - Fixed client ignoring hello packets if not host (I forgot to fix the check at some point)
-  - *Im a bit retarded*
+	- *Im a bit retarded*
+
+## 1.0.1
+- Fixed packets still using static version string from recovery
 
 ## 1.0.0
 - Recovered from losing the project files >~<
