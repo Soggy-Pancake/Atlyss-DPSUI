@@ -29,7 +29,7 @@ namespace Atlyss_DPSUI {
         }
 
         internal static void Client_RecieveHello(PacketHeader header, PacketBase packet) {
-            if (!Plugin._serverSupport && !header.SenderIsLobbyOwner && Plugin.player.NC()?.Network_isHostPlayer == true || !(packet is DPSServerHelloPacket dPSServerHelloPacket))
+            if (Plugin._serverSupport || !header.SenderIsLobbyOwner || Plugin.player.NC()?.Network_isHostPlayer == true || !(packet is DPSServerHelloPacket dPSServerHelloPacket))
                 return;
             
             if (dPSServerHelloPacket.response == "Hello") {
