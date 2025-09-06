@@ -466,12 +466,13 @@ namespace Atlyss_DPSUI {
             bool addedLocalPlayer = false;
             for (int i = 0; i < values.Count; i++) {
                 DPSValues v = values[i];
-                Plugin.logger.LogDebug($"{v.nickname} dmg: {v.totalDamage} UpdatePartyValues  percent fill: {(float)v.totalDamage / Mathf.Max(values[0].totalDamage, 1)}");
+                float fillPercent = (float)v.totalDamage / Mathf.Max(values[0].totalDamage, 1);
+                Plugin.logger.LogDebug($"{v.nickname} dmg: {v.totalDamage} UpdatePartyValues  percent fill: {fillPercent}");
                 if (v.steamID == playerSteamID)
                     addedLocalPlayer = true;
                 
                 if (i < 4 || addedLocalPlayer || !(v.steamID != playerSteamID)) {
-                    memberBars[i].UpdateInfo(v, v.totalDamage / Mathf.Max(values[0].totalDamage, 1));
+                    memberBars[i].UpdateInfo(v, fillPercent);
                     if (i >= 4 && addedLocalPlayer)
                         break;
                 }
