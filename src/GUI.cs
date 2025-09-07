@@ -234,7 +234,7 @@ namespace Atlyss_DPSUI {
             Text component = textObj.GetComponent<Text>();
             if (component == null)
                 return null;
-            
+
             RectTransform component2 = textObj.transform.parent.GetComponent<RectTransform>();
             if (component2 && component2.sizeDelta != Vector2.zero) {
                 textObj.GetComponent<RectTransform>().sizeDelta = component2.sizeDelta;
@@ -279,11 +279,18 @@ namespace Atlyss_DPSUI {
 
         internal DPSUI_GUI() {
             if (classImages == null || classImages.Length == 0) {
-                classImages = Resources.LoadAll<Texture2D>("_graphic/_ui/_classicons/");
+                Texture2D[] images = Resources.LoadAll<Texture2D>("_graphic/_ui/_classicons/");
+
+                Texture2D nullImg = Resources.Load<Texture2D>("_graphic/_ui/_ico_caution_lv");
+                nullImg.name = "Null";
+
+                classImages = new Texture2D[images.Length + 1];
+                classImages[0] = nullImg;
+                Array.Copy(images, 0, classImages, 1, images.Length);
+
                 Plugin.logger.LogDebug($"Loaded {classImages.Length} class icons");
-                Texture2D[] array = classImages;
-                foreach (Texture2D val in array) {
-                    Plugin.logger.LogDebug("Loaded class " + val.name);
+                foreach (Texture2D img in classImages) {
+                    Plugin.logger.LogDebug("Loaded class " + img.name);
                 }
             }
 
@@ -317,7 +324,7 @@ namespace Atlyss_DPSUI {
                     backgroundSprite = Resources.Load("_graphic/_ui/bk_06") as Sprite;
                 }
 
-                if(backgroundImage != null)
+                if (backgroundImage != null)
                     backgroundImage.filterMode = FilterMode.Point;
 
                 GameObject partyContainer = new GameObject("partyDPS", typeof(RectTransform));
@@ -326,7 +333,7 @@ namespace Atlyss_DPSUI {
                 partyTransform.anchorMax = PartyDPS_MaxPos;
                 partyTransform.sizeDelta = Vector2.zero;
                 partyDpsTransform = partyTransform;
-                if(backgroundSprite != null)
+                if (backgroundSprite != null)
                     AddBackground(partyContainer, sprite: backgroundSprite);
                 else if (backgroundImage != null)
                     AddBackground(partyContainer, image: backgroundImage);
@@ -422,7 +429,7 @@ namespace Atlyss_DPSUI {
                 string text = dps.ToString("n1");
                 if (text.EndsWith(".0"))
                     text = text.Substring(0, text.IndexOf('.'));
-                
+
                 string text2 = text + " DPS";
                 localDpsText.text = text2;
             }
@@ -431,7 +438,7 @@ namespace Atlyss_DPSUI {
         public void UpdatePartyDamageValues(DPSPacket packet) {
             if (!createdUI || packet == null)
                 return;
-            
+
             List<DPSValues> values = packet.partyDamageValues;
             long startTime = packet.dungeonStartTime;
             long endTime = packet.bossFightEndTime;
@@ -493,7 +500,7 @@ namespace Atlyss_DPSUI {
                 Plugin.logger.LogDebug($"{v.nickname} dmg: {v.totalDamage} UpdatePartyValues  percent fill: {fillPercent}");
                 if (v.steamID == playerSteamID)
                     addedLocalPlayer = true;
-                
+
                 if (i < 4 || addedLocalPlayer || !(v.steamID != playerSteamID)) {
                     memberBars[Math.Min(4, i)].UpdateInfo(v, fillPercent);
                     if (i >= 4 && addedLocalPlayer)
