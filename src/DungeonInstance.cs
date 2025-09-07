@@ -96,7 +96,7 @@ namespace Atlyss_DPSUI {
 
             if (patternManager) {
                 Plugin.logger.LogInfo($"PatternInstance state: isBossEngaged {patternManager._isBossEngaged} netowrkversion {patternManager.Network_isBossEngaged}");
-                Plugin.logger.LogInfo($"Boss from pattern: {patternManager._bossSpawner._spawnedCreeps[0]}");
+                Plugin.logger.LogInfo($"Boss entity: {bossEntity}");
             }
 
             Plugin.logger.LogInfo("Dungeon cleared? " + ((dungeonClearTime != 0) ? "Yes" : "No"));
