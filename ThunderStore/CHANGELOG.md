@@ -1,3 +1,7 @@
+## 1.0.5
+- Detect classes with null class icons and replace with `_ico_caution_lv`
+	- Players using the broken classes can be added to the damage lists now
+
 ## 1.0.4
 - Fix party dps not being calculated in dungeons.
 - Load sprites instead of textures so sliced rendering works (middle scales while edges dont, it looks way better)
