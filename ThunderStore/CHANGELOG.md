@@ -1,3 +1,7 @@
+## 1.0.4
+- Fix party dps not being calculated in dungeons.
+- Load sprites instead of textures so sliced rendering works (middle scales while edges dont, it looks way better)
+
 ## 1.0.3
 - Fix party member fill bars being given an int for the fill percentage
 - Actually fixed the client ignoring hello packets if not host
