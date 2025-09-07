@@ -25,19 +25,27 @@ namespace Atlyss_DPSUI {
             totalDamage = initialDamage;
 
             classIcon = "_clsIco_novice";
-            ScriptablePlayerBaseClass scriptablePlayerBaseClass = player._pStats._class;
+            ScriptablePlayerBaseClass sPClass = player._pStats._class;
 
-            if (player._pStats.Network_syncClassTier != 0)
-                classIcon = scriptablePlayerBaseClass._playerClassTiers[player._pStats.Network_syncClassTier - 1]._classTierIcon.name;
-            else
-                classIcon = scriptablePlayerBaseClass._classIcon.name;
-            
+            if (player._pStats.Network_syncClassTier != 0) {
+                int classTier = player._pStats.Network_syncClassTier - 1;
+                if (sPClass._playerClassTiers.Length > classTier) {
+                    Sprite icon = sPClass._playerClassTiers[classTier]._classTierIcon;
+                    if (icon != null) {
+                        classIcon = icon.name;
+                    } else {
+                        classIcon = "Null";
+                    }
+                }
+            } else
+                classIcon = sPClass._classIcon.name;
+
 
             Color32 playerColor;
             try {
                 playerColor = player._pVisual._blockOrbRender.material.GetColor("_EmissionColor");
             } catch {
-                playerColor = scriptablePlayerBaseClass._blockEmissionColor;
+                playerColor = sPClass._blockEmissionColor;
             }
 
             color = ((uint)((playerColor.r << 24) | (playerColor.g << 16) | (playerColor.b << 8) | playerColor.a)).ToString("X");
