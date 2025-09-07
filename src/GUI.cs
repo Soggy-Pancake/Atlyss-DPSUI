@@ -316,7 +316,6 @@ namespace Atlyss_DPSUI {
                 } catch {
                     backgroundSprite = Resources.Load("_graphic/_ui/bk_06") as Sprite;
                 }
-                backgroundImage.filterMode = FilterMode.Point;
 
                 if(backgroundImage != null)
                     backgroundImage.filterMode = FilterMode.Point;
@@ -434,15 +433,23 @@ namespace Atlyss_DPSUI {
                 return;
             
             List<DPSValues> values = packet.partyDamageValues;
+            long startTime = packet.dungeonStartTime;
+            long endTime = packet.bossFightEndTime;
 
             if (_UIMode == UIMode.Auto) {
                 var bossDamageValues = packet.bossDamageValues;
-                if (bossDamageValues != null && bossDamageValues.Count > 0)
+                if (bossDamageValues != null && bossDamageValues.Count > 0) {
                     values = packet.bossDamageValues;
-            } else if (_UIMode == UIMode.Boss)
+                    startTime = packet.bossFightStartTime;
+                    endTime = packet.bossFightEndTime;
+                }
+            } else if (_UIMode == UIMode.Boss) {
                 values = packet.bossDamageValues;
+                startTime = packet.bossFightStartTime;
+                endTime = packet.bossFightEndTime;
+            }
 
-            if (values == null || values.Count == 0) {
+            if (values?.Count == 0) {
                 showPartyUI = false;
                 return;
             }
@@ -461,11 +468,10 @@ namespace Atlyss_DPSUI {
             if (!foundPlayer)
                 return;
 
-            long bossFightEndTime = packet.bossFightEndTime;
-            if (bossFightEndTime == 0)
-                bossFightEndTime = DateTime.UtcNow.Ticks / 10000;
+            if (endTime == 0)
+                endTime = DateTime.UtcNow.Ticks / 10000;
 
-            float totalTime = (bossFightEndTime - packet.bossFightStartTime) / 1000f;
+            float totalTime = (endTime - startTime) / 1000f;
             float dps = totalDamage / totalTime;
 
             partyTotalText.text = "Total: " + totalDamage;
