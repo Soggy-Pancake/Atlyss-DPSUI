@@ -253,7 +253,7 @@ namespace Atlyss_DPSUI {
             return component;
         }
 
-        public static GameObject AddBackground(GameObject uiObjt, Texture2D image = null) {
+        public static GameObject AddBackground(GameObject uiObjt, Texture2D image = null, Sprite sprite = null) {
             GameObject background = new GameObject("Background", typeof(RectTransform), typeof(Image));
             setParent(background, uiObjt);
 
@@ -264,10 +264,15 @@ namespace Atlyss_DPSUI {
             rectTrans.offsetMax = Vector2.zero;
             background.gameObject.layer = LayerMask.NameToLayer("UI");
 
+            Image imgComp = background.GetComponent<Image>();
             if (image) {
-                background.GetComponent<Image>().sprite = Sprite.Create(image, new Rect(0f, 0f, image.width, image.height), new Vector2(0.5f, 0.5f));
+                imgComp.sprite = Sprite.Create(image, new Rect(0f, 0f, image.width, image.height), new Vector2(0.5f, 0.5f));
+                imgComp.type = Image.Type.Sliced;
+            } else if (sprite) {
+                imgComp.sprite = sprite;
+                imgComp.type = Image.Type.Sliced;
             } else {
-                background.GetComponent<Image>().color = Color.black;
+                imgComp.color = Color.black;
             }
             return background;
         }
@@ -299,13 +304,22 @@ namespace Atlyss_DPSUI {
                 localDpsText = setupText(localDPSText, 25);
                 localDpsText.text = "0 DPS";
 
-                Texture2D backgroundImage;
+                Texture2D backgroundImage = null;
+                Sprite backgroundSprite = null;
+
                 try {
-                    backgroundImage = Resources.Load(DPSUI_Config.backgroundImage.Value) as Texture2D;
+                    UnityEngine.Object bgValue = Resources.Load<Sprite>(DPSUI_Config.backgroundImage.Value);
+                    if (bgValue != null) {
+                        backgroundSprite = bgValue as Sprite;
+                    } else
+                        backgroundImage = Resources.Load(DPSUI_Config.backgroundImage.Value) as Texture2D;
                 } catch {
-                    backgroundImage = Resources.Load("_graphic/_ui/bk_06") as Texture2D;
+                    backgroundSprite = Resources.Load("_graphic/_ui/bk_06") as Sprite;
                 }
                 backgroundImage.filterMode = FilterMode.Point;
+
+                if(backgroundImage != null)
+                    backgroundImage.filterMode = FilterMode.Point;
 
                 GameObject partyContainer = new GameObject("partyDPS", typeof(RectTransform));
                 RectTransform partyTransform = setupRectTransform(partyContainer, Vector2.zero, rootCanvas, true);
@@ -313,7 +327,10 @@ namespace Atlyss_DPSUI {
                 partyTransform.anchorMax = PartyDPS_MaxPos;
                 partyTransform.sizeDelta = Vector2.zero;
                 partyDpsTransform = partyTransform;
-                AddBackground(partyContainer, backgroundImage);
+                if(backgroundSprite != null)
+                    AddBackground(partyContainer, sprite: backgroundSprite);
+                else if (backgroundImage != null)
+                    AddBackground(partyContainer, image: backgroundImage);
                 partyContainer.GetComponentInChildren<Image>().color = new Color(0.9f, 0.9f, 0.9f);
 
                 partyAnimCurve = new AnimationCurve(
