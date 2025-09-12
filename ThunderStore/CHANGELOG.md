@@ -1,3 +1,6 @@
+## 1.0.6
+- Show ui while player is dead
+
 ## 1.0.5
 - Detect classes with null class icons and replace with `_ico_caution_lv`
 	- Players using the broken classes can be added to the damage lists now

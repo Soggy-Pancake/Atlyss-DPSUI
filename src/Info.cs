@@ -10,7 +10,7 @@ namespace Atlyss_DPSUI {
         public const string NAME = "AtlyssDPSUI";
 
         // NO TOUCHIE | PUT THE NEW VERSION NUMBER IN THE .csproj
-        public const string VERSION = "1.0.5";
+        public const string VERSION = "1.0.6";
 
         public const int MAX_HELLO_RETRY = 5;
         public const float CLIENT_UPDATE_RATE = 1f;

@@ -524,7 +524,7 @@ namespace Atlyss_DPSUI {
                 return;
 
             if ((gameUI._displayUI && !Player._mainPlayer._inUI) != showUI) {
-                showUI = gameUI._displayUI && (!Player._mainPlayer._inUI || Plugin.player._currentPlayerCondition == PlayerCondition.DEAD);
+                showUI = gameUI._displayUI && (!Plugin.player._inUI || Plugin.player._currentPlayerCondition == PlayerCondition.DEAD);
                 localDpsContainer.SetActive(showLocalUI && _userShowLocalUI && showUI);
             }
 
