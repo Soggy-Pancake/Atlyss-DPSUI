@@ -227,7 +227,8 @@ namespace Atlyss_DPSUI {
                 logger.LogInfo("Server support " + _serverSupport);
                 logger.LogInfo("AmServer " + _serverSupport);
                 logger.LogInfo("last dps packet " + lastDPSPacket);
-                if(_AmServer){
+                logger.LogInfo($"Show partyUI: {DPSUI_GUI.showPartyUI}; Show localUI: {DPSUI_GUI.showLocalUI}; Player in ui: {player._inUI}");
+                if (_AmServer){
                     logger.LogInfo("\nSpawners:");
                     CreepSpawner[] array = Resources.FindObjectsOfTypeAll<CreepSpawner>();
                     foreach (CreepSpawner creepSpawner in array) {
