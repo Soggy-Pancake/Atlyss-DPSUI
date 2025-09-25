@@ -20,17 +20,17 @@ public struct DamageHistory {
 public struct PacketPlayer {
 
     public uint netId;
-    public string nick;
     public uint color;
+    public string nickname;
     public string icon;
 
     public PacketPlayer() { } // Prevent json instantiation fuckery
 
     public PacketPlayer(DPSValues ogValue) {
         netId = ogValue.netId;
-        nick = ogValue.nickname;
-        icon = ogValue.classIcon;
         color = ogValue.color;
+        nickname = ogValue.nickname;
+        icon = ogValue.classIcon;
     }
 }
 
