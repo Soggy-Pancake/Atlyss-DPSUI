@@ -36,11 +36,11 @@ public struct PacketPlayer {
 
 public struct PacketDPSValue {
     public byte playerIndex;
-    public int value;
+    public uint value;
 
     public PacketDPSValue() { }
 
-    public PacketDPSValue(int index, int _value) {
+    public PacketDPSValue(int index, uint _value) {
         playerIndex = unchecked((byte)index); // Server should be unusable long before this overflows
         value = _value;
     }
