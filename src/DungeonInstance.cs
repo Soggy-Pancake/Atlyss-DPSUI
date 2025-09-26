@@ -12,9 +12,9 @@ namespace Atlyss_DPSUI;
 public class DPSValues : Boolable {
 
     public uint netId;
-    public string nickname;
-    public int totalDamage;
     public uint color;
+    public uint totalDamage;
+    public string nickname;
     public string classIcon;
 
     public DPSValues() { }
