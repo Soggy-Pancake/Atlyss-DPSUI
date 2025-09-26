@@ -19,16 +19,21 @@ internal class ClientPatches {
             _helloRetryCount++;
             Plugin.logger.LogDebug($"Sending hello packet (Attempt {_helloRetryCount})");
 
-            DPSClientHelloPacket packet = new DPSClientHelloPacket {
+            /*DPSClientHelloPacket packet = new DPSClientHelloPacket {
+                nickname = Player._mainPlayer._nickname
+            };*/
+
+            BinaryClientHelloPacket bPacket = new BinaryClientHelloPacket {
                 nickname = Player._mainPlayer._nickname
             };
             _helloRetryLast = Time.time;
 
-            CodeTalkerNetwork.SendNetworkPacket(packet);
+            //CodeTalkerNetwork.SendNetworkPacket(packet);
+            CodeTalkerNetwork.SendBinaryNetworkPacket(bPacket);
         }
     }
 
-    internal static void Client_RecieveHello(PacketHeader header, PacketBase packet) {
+    /*internal static void Client_RecieveHello(PacketHeader header, PacketBase packet) {
         if (Plugin._serverSupport || !header.SenderIsLobbyOwner || Plugin.player.NC()?.Network_isHostPlayer == true || !(packet is DPSServerHelloPacket dPSServerHelloPacket))
             return;
 
@@ -41,6 +46,21 @@ internal class ClientPatches {
             }
             Plugin._serverSupport = true;
         }
+    }*/
+
+    internal static void Client_RecieveHello(PacketHeader header, BinaryPacketBase packet) {
+        /*if (Plugin._serverSupport || !header.SenderIsLobbyOwner || Plugin.player.NC()?.Network_isHostPlayer == true || !(packet is BinaryServerHelloPacket dPSServerHelloPacket))
+            return;*/
+        if (!(packet is BinaryServerHelloPacket dPSServerHelloPacket))
+            return;
+
+        Plugin.logger.LogInfo("Client recieved binary hello. Server DPSUI version is " + dPSServerHelloPacket.version);
+
+        if (dPSServerHelloPacket.version != PluginInfo.VERSION) {
+            Plugin.logger.LogWarning("Server version mismatch!");
+            Player._mainPlayer._chatBehaviour.New_ChatMessage("<color=#fce75d>Server AtlyssDPSUI Version mismatch! (Server version: " + dPSServerHelloPacket.version + ")</color>");
+        }
+        Plugin._serverSupport = true;
     }
 
     [HarmonyPostfix]
@@ -124,7 +144,7 @@ internal class ClientPatches {
 
         Player player = Player._mainPlayer.NC();
         if (player != null && player.Network_playerZoneType == ZoneType.Dungeon && _portal._scenePortal._spawnPointTag == "fortSpawn") {
-            DPSPacket lastDPSPacket = Plugin.lastDPSPacket;
+            BinaryDPSPacket lastDPSPacket = Plugin.lastDPSPacket;
             if (lastDPSPacket != null && lastDPSPacket.bossFightEndTime == 0)
                 Plugin.logger.LogDebug("Portaled out of finished dungeon!");
             Plugin.logger.LogDebug("Portaled out of dungeon early?");
