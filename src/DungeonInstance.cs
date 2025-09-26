@@ -105,8 +105,9 @@ internal class DungeonInstance {
     public void markDirty() => Dirty = true;
 
     private void sendPacket() {
-        CodeTalkerNetwork.SendNetworkPacket(new DPSPacket(this));
-        Plugin.logger.LogDebug("Sent update packet");
+        //CodeTalkerNetwork.SendNetworkPacket(new DPSPacket(this));
+        CodeTalkerNetwork.SendBinaryNetworkPacket(new BinaryDPSPacket(this));
+        Plugin.logger.LogDebug($"Sent update packet for dungeon instance {mapNetID}");
         lastSentUpdate = Time.time;
         Dirty = false;
     }
