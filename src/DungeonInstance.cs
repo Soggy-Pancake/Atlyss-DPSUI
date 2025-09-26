@@ -281,12 +281,12 @@ internal class DungeonInstance {
             for (int i = 0; i < bossDamage.Count; i++) {
                 if (bossDamage[i].netId == player.netId) {
                     foundPlayer = true;
-                    bossDamage[i].totalDamage += damage;
+                    bossDamage[i].totalDamage += unchecked((uint)(bossDamage[i].totalDamage + damage));
                 }
             }
 
             if (!foundPlayer)
-                bossDamage.Add(new DPSValues(player, damage));
+                bossDamage.Add(new DPSValues(player, (uint)damage));
         } else {
             if (player.Network_playerMapInstance._zoneType != ZoneType.Dungeon)
                 return;
@@ -295,12 +295,12 @@ internal class DungeonInstance {
             for (int i = 0; i < totalDungeonDamage.Count; i++) {
                 if (totalDungeonDamage[i].netId == player.netId) {
                     foundPlayer = true;
-                    totalDungeonDamage[i].totalDamage += damage;
+                    totalDungeonDamage[i].totalDamage += unchecked((uint)(bossDamage[i].totalDamage + damage));
                 }
             }
 
             if (!foundPlayer)
-                totalDungeonDamage.Add(new DPSValues(player, damage));
+                totalDungeonDamage.Add(new DPSValues(player, (uint)damage));
         }
 
         Dirty = true;
