@@ -112,13 +112,6 @@ internal class DungeonInstance {
         Dirty = false;
     }
 
-    /// <summary>
-    /// WIP: Send a raw binary packet instead of JSON
-    /// </summary>
-    void sendPackedPacket() {
-
-    }
-
     public void Print() {
         try {
             Plugin.logger.LogInfo($"Dungeon instance ({map._mapName}) [netId: {mapNetID}]");
