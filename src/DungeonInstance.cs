@@ -19,7 +19,7 @@ public class DPSValues : Boolable {
 
     public DPSValues() { }
 
-    public DPSValues(Player player, int initialDamage) {
+    public DPSValues(Player player, uint initialDamage) {
         netId = player.netId;
         nickname = player._nickname;
         totalDamage = initialDamage;
