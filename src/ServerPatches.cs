@@ -11,12 +11,13 @@ using UnityEngine;
 namespace Atlyss_DPSUI;
 
 internal class ServerPatches {
-    internal static void Server_RecieveHello(PacketHeader header, PacketBase packet) {
+    /*internal static void Server_RecieveHello(PacketHeader header, PacketBase packet) {
         if (packet is DPSClientHelloPacket dPSClientHelloPacket && Player._mainPlayer.NC()?.Network_isHostPlayer == true && !header.SenderIsLobbyOwner) {
             Plugin.logger.LogInfo("Server replying to client! (" + dPSClientHelloPacket.nickname + ")");
 
             CodeTalkerNetwork.SendNetworkPacket(new DPSServerHelloPacket());
         }
+    }*/
 
     internal static void Server_RecieveHello(PacketHeader header, BinaryPacketBase packet) {
         if (packet is BinaryClientHelloPacket dPSClientHelloPacket) { // && Player._mainPlayer.NC()?.Network_isHostPlayer == true && !header.SenderIsLobbyOwner) {
