@@ -127,7 +127,7 @@ public class BinaryDPSPacket : BinaryPacketBase {
 
         byte bossDmgCount = reader.ReadByte();
         bossDamageValues = new List<DPSValues>(bossDmgCount);
-        Plugin.logger.LogInfo($"Deserializing {bossDmgCount} boss damage values");
+        //Plugin.logger.LogInfo($"Deserializing {bossDmgCount} boss damage values");
         PacketPlayer pPlayer;
         for (int i = 0; i < bossDmgCount; i++) {
             pPlayer = players[reader.ReadByte()];
@@ -138,11 +138,11 @@ public class BinaryDPSPacket : BinaryPacketBase {
 
         byte partyDmgCount = reader.ReadByte();
         partyDamageValues = new List<DPSValues>(partyDmgCount);
-        Plugin.logger.LogInfo($"Deserializing {partyDmgCount} party damage values");
+        //Plugin.logger.LogInfo($"Deserializing {partyDmgCount} party damage values");
         for (int i = 0; i < partyDmgCount; i++) {
             pPlayer = players[reader.ReadByte()];
             damage = reader.ReadUInt32();
-            Plugin.logger.LogInfo($"{pPlayer.nickname}: {damage}");
+            //Plugin.logger.LogInfo($"{pPlayer.nickname}: {damage}");
             partyDamageValues.Add(new DPSValues(pPlayer, damage));
         }
     }
