@@ -435,7 +435,7 @@ public class DPSUI_GUI : Boolable {
         }
     }
 
-    public void UpdatePartyDamageValues(DPSPacket packet) {
+    public void UpdatePartyDamageValues(BinaryDPSPacket packet) {
         if (!createdUI || packet == null)
             return;
 
@@ -464,7 +464,7 @@ public class DPSUI_GUI : Boolable {
         values.Sort((b, a) => a.totalDamage.CompareTo(b.totalDamage));
 
         int playerIdx = -1;
-        int totalDamage = 0;
+        uint totalDamage = 0;
         uint playerNetID = Player._mainPlayer.netId;
         DPSValues v;
         for (int i = 0; i < values.Count; i++) {
