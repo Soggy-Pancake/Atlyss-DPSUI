@@ -50,6 +50,13 @@ public class DPSValues : Boolable {
 
         color = (uint)((playerColor.r << 24) | (playerColor.g << 16) | (playerColor.b << 8) | playerColor.a);
     }
+
+    internal DPSValues(PacketPlayer player, uint damage) { 
+        netId = player.netId;
+        nickname = player.nickname;
+        classIcon = player.icon;
+        totalDamage = damage;
+    }
 }
 
 
