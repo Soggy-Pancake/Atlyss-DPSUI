@@ -9,253 +9,292 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using CodeTalker.Packets;
 using CodeTalker.Networking;
+using BepInEx.Bootstrap;
 
-//using Object = UnityEngine.Object;
+namespace Atlyss_DPSUI;
 
+[BepInDependency("CodeTalker")]
+[BepInDependency("EasySettings", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInPlugin("Soggy_Pancake.atlyssDPSUI", "AtlyssDPSUI", PluginInfo.VERSION)]
+public class Plugin : BaseUnityPlugin {
 
-namespace Atlyss_DPSUI {
+    public static Plugin AtlyssDPSUI;
+    internal static Harmony _harmony;
+    internal static ManualLogSource logger;
 
-    [BepInDependency("CodeTalker", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency("EasySettings", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInPlugin("soggy_pancake.plugins.atlyssDPSUI", "AtlyssDPSUI", PluginInfo.VERSION)]
-    public class Plugin : BaseUnityPlugin {
+    internal static Player player;
+    internal static InGameUI GameUI;
+    public static Text localDpsText;
 
-        public static Plugin AtlyssDPSUI;
-        internal static Harmony _harmony;
-        internal static ManualLogSource logger;
+    internal static bool _serverSupport;
+    internal static bool _AmServer;
+    internal static bool _AmHeadless;
 
-        internal static Player player;
-        internal static InGameUI GameUI;
-        public static Text localDpsText;
+    internal static bool _SoloMode;
 
-        internal static bool _serverSupport;
-        internal static bool _AmServer;
-        internal static bool _AmHeadless;
+    internal static bool shownDungeonClearText;
 
-        internal static bool _SoloMode;
+    internal static List<DungeonInstance> dungeonInstances = new List<DungeonInstance>();
+    internal static List<DamageHistory> localDamage = new List<DamageHistory>();
 
-        internal static bool shownDungeonClearText;
+    internal static BinaryDPSPacket lastDPSPacket;
 
-        internal static List<DungeonInstance> dungeonInstances = new List<DungeonInstance>();
-        internal static List<DamageHistory> localDamage = new List<DamageHistory>();
+    /*internal static void BinaryPacketRecieve(PacketHeader header, BinaryPacketBase packet) {
+        if (packet is BinaryMsgTestPacket bPacket)
+            logger.LogInfo($"Recieved binary packet of length {bPacket.rawBytes.Length} from {header.SenderID}");
+    }*/
 
-        internal static DPSPacket lastDPSPacket;
+    /*internal static void Client_ParseDungeonPartyDamage(PacketHeader header, PacketBase packet) {
+        if (!(packet is DPSPacket dPSPacket) || !Player._mainPlayer.NC()?.Network_playerMapInstance ||
+            dPSPacket.mapNetID != Player._mainPlayer.Network_playerMapInstance.netId) {
+            return;
+        }
 
-        internal static void Client_ParseDungeonPartyDamage(PacketHeader header, PacketBase packet) {
-            if (!(packet is DPSPacket dPSPacket) || !Player._mainPlayer.NC()?.Network_playerMapInstance || dPSPacket.mapNetID != Player._mainPlayer.Network_playerMapInstance.netId) {
-                return;
-            }
+        logger.LogDebug("Recieved valid packet for instance!");
+        logger.LogDebug($"Boss fight start {dPSPacket.bossFightStartTime}!");
+        logger.LogDebug($"Boss fight end   {dPSPacket.bossFightEndTime}!");
 
-            logger.LogDebug("Recieved valid packet for instance!");
-            logger.LogDebug($"Boss fight start {dPSPacket.bossFightStartTime}!");
-            logger.LogDebug($"Boss fight end   {dPSPacket.bossFightEndTime}!");
-
-            if (!lastDPSPacket) {
-                lastDPSPacket = dPSPacket;
-            }
-
-            if (lastDPSPacket.dungeonClearTime == 0 && dPSPacket.dungeonClearTime > 0) {
-                AddChatMessage($"[DPSUI] Dungeon cleared in {(float)(dPSPacket.dungeonClearTime - dPSPacket.dungeonStartTime) / 1000f} seconds!(arenas only)");
-            }
-
-            if (lastDPSPacket.bossTeleportTime == 0 && dPSPacket.bossTeleportTime > 0) {
-                AddChatMessage($"[DPSUI] Boss reached in {(float)(dPSPacket.bossTeleportTime - dPSPacket.dungeonStartTime) / 1000f} seconds!");
-            }
-
-            if (lastDPSPacket.bossFightEndTime == 0 && dPSPacket.bossFightEndTime > 0 && dPSPacket.dungeonStartTime > 0) {
-                AddChatMessage($"[DPSUI] Boss beaten in {(float)(dPSPacket.bossFightEndTime - dPSPacket.bossFightStartTime) / 1000f} seconds!");
-                AddChatMessage($"[DPSUI] Dungeon finished in {(float)(dPSPacket.bossFightEndTime - dPSPacket.dungeonStartTime) / 1000f} seconds!");
-            }
-
-            int totalDamage = 0;
-            foreach (DPSValues bossDamageValue in dPSPacket.bossDamageValues) {
-                totalDamage += bossDamageValue.totalDamage;
-            }
-
-            DPSUI_GUI._UI.UpdatePartyDamageValues(dPSPacket);
+        if (!lastDPSPacket) {
             lastDPSPacket = dPSPacket;
         }
 
-        internal static void AddChatMessage(string msg) {
-            Player._mainPlayer.NC()?._chatBehaviour.NC()?.New_ChatMessage(msg);
+        if (lastDPSPacket.dungeonClearTime == 0 && dPSPacket.dungeonClearTime > 0) {
+            AddChatMessage($"[DPSUI] Dungeon cleared in {(float)(dPSPacket.dungeonClearTime - dPSPacket.dungeonStartTime) / 1000f} seconds!(arenas only)");
         }
 
-        internal static void AddGameFeedMessage(string msg) {
-            Player._mainPlayer.NC()?._chatBehaviour.NC()?.Init_GameLogicMessage(msg);
+        if (lastDPSPacket.bossTeleportTime == 0 && dPSPacket.bossTeleportTime > 0) {
+            AddChatMessage($"[DPSUI] Boss reached in {(float)(dPSPacket.bossTeleportTime - dPSPacket.dungeonStartTime) / 1000f} seconds!");
         }
 
-        private void Awake() {
-            AtlyssDPSUI = this;
-            logger = Logger;
-            _harmony = new Harmony(PluginInfo.GUID);
-            DPSUI_Config.init(Config);
-
-            localDamage = new List<DamageHistory>();
-            logger.LogInfo("Patch successful! Registering network listeners...");
-
-            CodeTalkerNetwork.RegisterListener<DPSClientHelloPacket>(ServerPatches.Server_RecieveHello);
-
-            if (!Environment.GetCommandLineArgs().Contains("-server")) {
-                _harmony.PatchAll(typeof(ClientPatches));
-                CodeTalkerNetwork.RegisterListener<DPSServerHelloPacket>(ClientPatches.Client_RecieveHello);
-                CodeTalkerNetwork.RegisterListener<DPSPacket>(Client_ParseDungeonPartyDamage);
-            } else {
-                logger.LogWarning("Headless mode detected!");
-                _serverSupport = _AmHeadless = true;
-            }
-
-            _harmony.PatchAll(typeof(ServerPatches));
+        if (lastDPSPacket.bossFightEndTime == 0 && dPSPacket.bossFightEndTime > 0 && dPSPacket.dungeonStartTime > 0) {
+            AddChatMessage($"[DPSUI] Boss beaten in {(float)(dPSPacket.bossFightEndTime - dPSPacket.bossFightStartTime) / 1000f} seconds!");
+            AddChatMessage($"[DPSUI] Dungeon finished in {(float)(dPSPacket.bossFightEndTime - dPSPacket.dungeonStartTime) / 1000f} seconds!");
         }
 
-        private void Update() {
-            if (_AmHeadless || !player)
-                return;
-            
-            if (!DPSUI_GUI.createdUI && InGameUI._current) {
-                DPSUI_GUI._UI = new DPSUI_GUI();
-                _SoloMode = AtlyssNetworkManager._current._soloMode;
-            }
+        DPSUI_GUI._UI.UpdatePartyDamageValues(dPSPacket);
+        lastDPSPacket = dPSPacket;
+    }*/
 
-            if (GameUI == null)
-                GameUI = InGameUI._current;
+    internal static void Client_ParseDungeonPartyDamage(PacketHeader header, BinaryPacketBase packet) {
+        if (!(packet is BinaryDPSPacket dPSPacket) || !Player._mainPlayer.NC()?.Network_playerMapInstance ||
+            dPSPacket.mapNetID != Player._mainPlayer.Network_playerMapInstance.netId) {
+            return;
+        }
 
-            DPSUI_GUI._UI.Update();
+        /*logger.LogDebug("Recieved valid BINARY packet for instance!");
+        logger.LogDebug($"Map net ID     {dPSPacket.mapNetID}!");
+        logger.LogDebug($"Dungeon start   {dPSPacket.dungeonStartTime}!");
+        logger.LogDebug($"Dungeon clear   {dPSPacket.dungeonClearTime}!");
+        logger.LogDebug($"Boss teleport   {dPSPacket.bossTeleportTime}!");
+        logger.LogDebug($"Boss fight start {dPSPacket.bossFightStartTime}!");
+        logger.LogDebug($"Boss fight end   {dPSPacket.bossFightEndTime}!");
 
-            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.RightShift)) {
-                logger.LogInfo("main player: " + Player._mainPlayer);
-                logger.LogInfo($"Slide in time: {DPSUI_Config.transitionTime.Value}");
-                logger.LogInfo($"UI Mode: {DPSUI_GUI._UIMode}");
-                ClientPatches.ClientSendHello();
-                LogFullHierarchy();
+        logger.LogDebug($"Players in packet: {dPSPacket.players.Count}");
+        logger.LogDebug($"Boss damage list len {dPSPacket.bossDamageValues.Count}");
+        logger.LogDebug($"Party damage list len {dPSPacket.partyDamageValues.Count}");
 
-                Portal[] array = FindObjectsOfType<Portal>();
-                foreach (Portal portal in array) {
-                    try {
-                        if (portal.gameObject.activeSelf) {
-                            logger.LogInfo(portal.gameObject.name);
-                            logger.LogInfo(portal._scenePortal._portalType);
-                        }
-                    } catch {
+        logger.LogDebug("Players:");
+        foreach(var p in dPSPacket.players) {
+            logger.LogDebug($"{p.netId}: {p.nickname} {p.icon} {p.color}");
+        }
+
+        logger.LogDebug("\nBoss damage values:");
+        foreach (var p in dPSPacket.bossDamageValues) {
+            logger.LogDebug(p);
+        }
+
+        logger.LogDebug("\nParty damage values:");
+        foreach (var p in dPSPacket.partyDamageValues) {
+            logger.LogDebug(p);
+        }*/
+
+        if (lastDPSPacket == null)
+            lastDPSPacket = dPSPacket;
+        
+
+        if (lastDPSPacket.dungeonClearTime == 0 && dPSPacket.dungeonClearTime > 0) {
+            AddChatMessage($"[DPSUI] Dungeon cleared in {(float)(dPSPacket.dungeonClearTime - dPSPacket.dungeonStartTime) / 1000f} seconds!(arenas only)");
+        }
+
+        if (lastDPSPacket.bossTeleportTime == 0 && dPSPacket.bossTeleportTime > 0) {
+            AddChatMessage($"[DPSUI] Boss reached in {(float)(dPSPacket.bossTeleportTime - dPSPacket.dungeonStartTime) / 1000f} seconds!");
+        }
+
+        if (lastDPSPacket.bossFightEndTime == 0 && dPSPacket.bossFightEndTime > 0 && dPSPacket.dungeonStartTime > 0) {
+            AddChatMessage($"[DPSUI] Boss beaten in {(float)(dPSPacket.bossFightEndTime - dPSPacket.bossFightStartTime) / 1000f} seconds!");
+            AddChatMessage($"[DPSUI] Dungeon finished in {(float)(dPSPacket.bossFightEndTime - dPSPacket.dungeonStartTime) / 1000f} seconds!");
+        }
+
+        DPSUI_GUI._UI.UpdatePartyDamageValues(dPSPacket);
+        lastDPSPacket = dPSPacket;
+    }
+
+    internal static void AddChatMessage(string msg) => Player._mainPlayer.NC()?._chatBehaviour.NC()?.New_ChatMessage(msg);
+
+    internal static void AddGameFeedMessage(string msg) => Player._mainPlayer.NC()?._chatBehaviour.NC()?.Init_GameLogicMessage(msg);
+
+    private void Awake() {
+        AtlyssDPSUI = this;
+        logger = Logger;
+        _harmony = new Harmony(PluginInfo.GUID);
+        DPSUI_Config.init(Config);
+
+        localDamage = new List<DamageHistory>();
+        logger.LogInfo("Patch successful! Registering network listeners...");
+
+        if (Chainloader.PluginInfos.ContainsKey("CodeTalker"))
+            logger.LogError("Original CodeTalker is installed! This may cause conflicts! DISABLE/UNINSTALL THE ORIGINAL CODETALKER!");
+
+        CodeTalkerNetwork.RegisterBinaryListener<BinaryClientHelloPacket>(ServerPatches.Server_RecieveHello);
+
+        if (!Environment.GetCommandLineArgs().Contains("-server")) {
+            _harmony.PatchAll(typeof(ClientPatches));
+            CodeTalkerNetwork.RegisterBinaryListener<BinaryServerHelloPacket>(ClientPatches.Client_RecieveHello);
+            CodeTalkerNetwork.RegisterBinaryListener<BinaryDPSPacket>(Client_ParseDungeonPartyDamage);
+        } else {
+            logger.LogWarning("Headless mode detected!");
+            _serverSupport = _AmHeadless = true;
+        }
+
+        _harmony.PatchAll(typeof(ServerPatches));
+    }
+
+    private void Update() {
+        if (_AmHeadless || !player)
+            return;
+
+        if (!DPSUI_GUI.createdUI && InGameUI._current) {
+            DPSUI_GUI._UI = new DPSUI_GUI();
+            _SoloMode = AtlyssNetworkManager._current._soloMode;
+        }
+
+        if (GameUI == null)
+            GameUI = InGameUI._current;
+
+        DPSUI_GUI._UI.Update();
+
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.RightShift)) {
+            logger.LogInfo("main player: " + Player._mainPlayer);
+            logger.LogInfo($"Slide in time: {DPSUI_Config.transitionTime.Value}");
+            logger.LogInfo($"UI Mode: {DPSUI_GUI._UIMode}");
+            LogFullHierarchy();
+
+            Portal[] array = FindObjectsOfType<Portal>();
+            foreach (Portal portal in array) {
+                try {
+                    if (portal.gameObject.activeSelf) {
+                        logger.LogInfo(portal.gameObject.name);
+                        logger.LogInfo(portal._scenePortal._portalType);
                     }
-                }
-
-                ScriptablePlayerBaseClass scriptablePlayerBaseClass = player.NC()?._pStats.NC()?._class;
-                logger.LogInfo("Player base class name " + scriptablePlayerBaseClass._className);
-                if (player._pStats._syncClassTier != 0) {
-                    logger.LogInfo("Has subclass!");
-                    try {
-                        logger.LogInfo("Player base class name " + scriptablePlayerBaseClass._playerClassTiers[Player._mainPlayer._pStats._syncClassTier - 1]._classTierIcon.name);
-                    } catch { }
-                }
-                logger.LogError($"Dungeon instances tracked: {dungeonInstances.Count}");
-                foreach (DungeonInstance dungeonInstance in dungeonInstances) {
-                    dungeonInstance.Print();
+                } catch {
                 }
             }
 
-            if (!player._inChat && !player._inUI) {
-                if (Input.GetKeyDown(DPSUI_Config.togglePartyUIBind.Value)) {
-                    DPSUI_Config.showPartyUI.Value = (DPSUI_GUI.userShowPartyUI = !DPSUI_GUI.userShowPartyUI);
-                    AddGameFeedMessage((DPSUI_GUI.userShowPartyUI ? "Enabled" : "Disabled") + " party UI");
-                }
-
-                if (Input.GetKeyDown(DPSUI_Config.toggleLocalUIBind.Value)) {
-                    DPSUI_Config.showLocalUI.Value = (DPSUI_GUI.userShowLocalUI = !DPSUI_GUI.userShowLocalUI);
-                    AddGameFeedMessage((DPSUI_GUI.userShowLocalUI ? "Enabled" : "Disabled") + " local UI");
-                }
-
-                if (Input.GetKeyDown(DPSUI_Config.switchPartyUITypeBind.Value)) {
-
-                    if (DPSUI_GUI._UIMode == UIMode.Auto)
-                        DPSUI_GUI._UIMode = UIMode.Party;
-                    else if (DPSUI_GUI._UIMode == UIMode.Party)
-                        DPSUI_GUI._UIMode = UIMode.Boss;
-                    else if (DPSUI_GUI._UIMode == UIMode.Boss)
-                        DPSUI_GUI._UIMode = UIMode.Auto;
-
-                    AddGameFeedMessage($"Set UI Mode to {DPSUI_GUI._UIMode}");
-                    DPSUI_GUI._UI?.UpdatePartyDamageValues(lastDPSPacket);
-                }
+            ScriptablePlayerBaseClass scriptablePlayerBaseClass = player.NC()?._pStats.NC()?._class;
+            logger.LogInfo("Player base class name " + scriptablePlayerBaseClass._className);
+            if (player._pStats._syncClassTier != 0) {
+                logger.LogInfo("Has subclass!");
+                try {
+                    logger.LogInfo("Player base class name " + scriptablePlayerBaseClass._playerClassTiers[Player._mainPlayer._pStats._syncClassTier - 1]._classTierIcon.name);
+                } catch { }
+            }
+            logger.LogError($"Dungeon instances tracked: {dungeonInstances.Count}");
+            foreach (DungeonInstance dungeonInstance in dungeonInstances) {
+                dungeonInstance.Print();
             }
         }
 
-        private void FixedUpdate() {
-            if (player != Player._mainPlayer) {
-                player = Player._mainPlayer;
+        if (!player._inChat && !player._inUI) {
+            if (Input.GetKeyDown(DPSUI_Config.togglePartyUIBind.Value)) {
+                DPSUI_Config.showPartyUI.Value = (DPSUI_GUI.userShowPartyUI = !DPSUI_GUI.userShowPartyUI);
+                AddGameFeedMessage((DPSUI_GUI.userShowPartyUI ? "Enabled" : "Disabled") + " party UI");
             }
 
-            if (_AmServer) {
-                for (int i = dungeonInstances.Count - 1; i >= 0; i--) {
-                    DungeonInstance dungeonInstance = dungeonInstances[i];
+            if (Input.GetKeyDown(DPSUI_Config.toggleLocalUIBind.Value)) {
+                DPSUI_Config.showLocalUI.Value = (DPSUI_GUI.userShowLocalUI = !DPSUI_GUI.userShowLocalUI);
+                AddGameFeedMessage((DPSUI_GUI.userShowLocalUI ? "Enabled" : "Disabled") + " local UI");
+            }
 
-                    if (!dungeonInstances[i].map) {
-                        dungeonInstances.RemoveAt(i);
-                        logger.LogInfo("Dungeon was unloaded!");
-                    } else {
-                        dungeonInstance.Update();
-                    }
+            if (Input.GetKeyDown(DPSUI_Config.switchPartyUITypeBind.Value)) {
+
+                if (DPSUI_GUI._UIMode == UIMode.Auto)
+                    DPSUI_GUI._UIMode = UIMode.Party;
+                else if (DPSUI_GUI._UIMode == UIMode.Party)
+                    DPSUI_GUI._UIMode = UIMode.Boss;
+                else if (DPSUI_GUI._UIMode == UIMode.Boss)
+                    DPSUI_GUI._UIMode = UIMode.Auto;
+
+                AddGameFeedMessage($"Set UI Mode to {DPSUI_GUI._UIMode}");
+                DPSUI_GUI._UI?.UpdatePartyDamageValues(lastDPSPacket);
+            }
+        }
+    }
+
+    private void FixedUpdate() {
+        if (player != Player._mainPlayer) {
+            player = Player._mainPlayer;
+        }
+
+        if (_AmServer) {
+            for (int i = dungeonInstances.Count - 1; i >= 0; i--) {
+                DungeonInstance dungeonInstance = dungeonInstances[i];
+
+                if (!dungeonInstances[i].map) {
+                    dungeonInstances.RemoveAt(i);
+                    logger.LogInfo("Dungeon was unloaded!");
+                } else {
+                    dungeonInstance.Update();
                 }
-            } else if (!_serverSupport && player.NC()?.Network_currentGameCondition == GameCondition.IN_GAME && ClientPatches._helloRetryCount < 5) {
-                ClientPatches.ClientSendHello();
             }
+        } else if (!_serverSupport && player.NC()?.Network_currentGameCondition == GameCondition.IN_GAME && ClientPatches._helloRetryCount < 5) {
+            ClientPatches.ClientSendHello();
+        }
 
-            if (_AmHeadless || !DPSUI_GUI.showPartyUI)
-                return;
+        if (_AmHeadless || !DPSUI_GUI.showPartyUI)
+            return;
 
-            if (!player) {
+        if (!player) {
+            DPSUI_GUI.showPartyUI = false;
+            return;
+        }
+
+        MapInstance mapInstance = player.Network_playerMapInstance.NC();
+        if (mapInstance && mapInstance._zoneType == ZoneType.Field) {
+            BinaryDPSPacket dPSPacket = lastDPSPacket;
+            if (dPSPacket != null && dPSPacket.bossFightEndTime > 0 && lastDPSPacket.bossFightEndTime < DateTime.UtcNow.Ticks / 10000 - 30000) {
                 DPSUI_GUI.showPartyUI = false;
-                return;
+                logger.LogInfo("Stopped showing field boss info after 30 seconds!");
             }
+        }
+    }
 
-            MapInstance mapInstance = player.Network_playerMapInstance.NC();
-            if (mapInstance && mapInstance._zoneType == ZoneType.Field) {
-                DPSPacket dPSPacket = lastDPSPacket;
-                if (dPSPacket != null && dPSPacket.bossFightEndTime > 0 && lastDPSPacket.bossFightEndTime < DateTime.UtcNow.Ticks / 10000 - 30000) {
-                    DPSUI_GUI.showPartyUI = false;
-                    logger.LogInfo("Stopped showing field boss info after 30 seconds!");
+    private static void LogFullHierarchy() {
+        Player mainPlayer = Player._mainPlayer;
+        if (SceneManager.sceneCount >= 2) {
+            ClientPatches.ClientSendHello(force: true);
+            //mainPlayer.NC()?._chatBehaviour.NC()?.New_ChatMessage("<color=#fce75d>Server AtlyssDPSUI Version mismatch! (Server version: LogFullHierarchyTest)</color>");
+            logger.LogInfo("Am host: " + (mainPlayer.NC()?.Network_isHostPlayer != null ? "yes" : "nah"));
+            logger.LogInfo("_AmHeadless " + _AmHeadless);
+            logger.LogInfo("Server support " + _serverSupport);
+            logger.LogInfo("AmServer " + _serverSupport);
+            logger.LogInfo("last dps packet " + lastDPSPacket);
+            logger.LogInfo($"Show partyUI: {DPSUI_GUI.showPartyUI}; Show localUI: {DPSUI_GUI.showLocalUI}; Player in ui: {player._inUI}");
+            if (_AmServer) {
+                logger.LogInfo("\nSpawners:");
+                CreepSpawner[] array = Resources.FindObjectsOfTypeAll<CreepSpawner>();
+                foreach (CreepSpawner creepSpawner in array) {
+                    logger.LogInfo(creepSpawner.name + " spawn count: " + creepSpawner._creepCount);
                 }
             }
         }
 
-        private static void LogFullHierarchy() {
-            Player mainPlayer = Player._mainPlayer;
-            if (SceneManager.sceneCount >= 2) {
-                ClientPatches.ClientSendHello(force: true);
-                //mainPlayer.NC()?._chatBehaviour.NC()?.New_ChatMessage("<color=#fce75d>Server AtlyssDPSUI Version mismatch! (Server version: LogFullHierarchyTest)</color>");
-                logger.LogInfo("Am host: " + (mainPlayer.NC()?.Network_isHostPlayer != null ? "yes" : "nah"));
-                logger.LogInfo("_AmHeadless " + _AmHeadless);
-                logger.LogInfo("Server support " + _serverSupport);
-                logger.LogInfo("AmServer " + _serverSupport);
-                logger.LogInfo("last dps packet " + lastDPSPacket);
-                logger.LogInfo($"Show partyUI: {DPSUI_GUI.showPartyUI}; Show localUI: {DPSUI_GUI.showLocalUI}; Player in ui: {player._inUI}");
-                if (_AmServer){
-                    logger.LogInfo("\nSpawners:");
-                    CreepSpawner[] array = Resources.FindObjectsOfTypeAll<CreepSpawner>();
-                    foreach (CreepSpawner creepSpawner in array) {
-                        logger.LogInfo(creepSpawner.name + " spawn count: " + creepSpawner._creepCount);
-                    }
-                }
-            }
+        logger.LogInfo(mainPlayer.NC()?._playerMapInstance.NC()?.name);
+        logger.LogInfo(mainPlayer.NC()?._playerMapInstance.NC()?._zoneType);
+        logger.LogInfo($"Loaded scenes: {SceneManager.sceneCount}");
 
-            logger.LogInfo(mainPlayer.NC()?._playerMapInstance.NC()?.name);
-            logger.LogInfo(mainPlayer.NC()?._playerMapInstance.NC()?._zoneType);
-            logger.LogInfo($"Loaded scenes: {SceneManager.sceneCount}");
-
-            for (int j = 0; j < SceneManager.sceneCount; j++) {
-                Scene scene = SceneManager.GetSceneAt(j);
-                logger.LogInfo("Loaded scene: " + scene.name);
-            }
-        }
-
-        public static void LogHierarchy(Transform root, int depth = 0) {
-            logger.LogInfo(new string(' ', depth * 2) + root.name);
-            if (!root.name.StartsWith("_player(") && !root.name.StartsWith("_raceModelDisplayDolly")) {
-                foreach (Transform item in root) {
-                    LogHierarchy(item, depth + 1);
-                }
-                return;
-            }
-            logger.LogInfo(new string(' ', (depth + 1) * 2) + "...");
+        for (int j = 0; j < SceneManager.sceneCount; j++) {
+            Scene scene = SceneManager.GetSceneAt(j);
+            logger.LogInfo("Loaded scene: " + scene.name);
         }
     }
 }
