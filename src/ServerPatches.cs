@@ -40,7 +40,9 @@ internal class ServerPatches {
                     dungeonInstance.RecordDamage(_dmgStruct._statusEntity?._isPlayer, _dmgStruct._damageValue, __instance._isCreep == dungeonInstance.bossEntity);
                     break;
                 }
-            } catch { }
+            } catch (Exception e) { 
+                Plugin.logger.LogError("Exception while recording damage: " + e);
+            }
         }
     }
 
