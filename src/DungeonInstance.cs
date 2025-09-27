@@ -114,7 +114,7 @@ internal class DungeonInstance {
 
     public void Print() {
         try {
-            Plugin.logger.LogInfo($"Dungeon instance ({map._mapName}) [netId: {mapNetID}]");
+            Plugin.logger.LogInfo($"Dungeon instance ({map._mapName}) [netId: {mapNetID}] Dirty? {Dirty} LastUpdate: {lastSentUpdate}");
             Plugin.logger.LogInfo($"Pattern manager: {patternManager}");
 
             if (patternManager) {
@@ -135,6 +135,8 @@ internal class DungeonInstance {
             if (bossEntity)
                 Plugin.logger.LogInfo($"Boss max hp: {bossEntity._statStruct._maxHealth}");
 
+            Plugin.logger.LogInfo($"Dungeon start time: {dungeonStartTime}");
+            Plugin.logger.LogInfo($"Dungeon clear time: {dungeonClearTime}");
             Plugin.logger.LogInfo($"Fight start time: {bossFightStartTime}");
             Plugin.logger.LogInfo($"Fight end time: {bossFightEndTime}");
             if (bossStatus == "Defeated")
