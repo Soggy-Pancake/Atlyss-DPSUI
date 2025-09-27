@@ -51,7 +51,7 @@ public class DPSValues : Boolable {
         color = (uint)((playerColor.r << 24) | (playerColor.g << 16) | (playerColor.b << 8) | playerColor.a);
     }
 
-    internal DPSValues(PacketPlayer player, uint damage) { 
+    internal DPSValues(PacketPlayer player, uint damage) {
         netId = player.netId;
         nickname = player.nickname;
         classIcon = player.icon;
@@ -175,12 +175,14 @@ internal class DungeonInstance {
                 dungeonClearTime = DateTime.UtcNow.Ticks / 10000;
                 if (Plugin._SoloMode)
                     Plugin.AddChatMessage($"[DPSUI] Dungeon cleared in {(float)(dungeonClearTime - dungeonStartTime) / 1000f} seconds! (all arenas beaten)");
+                sendPacket();
             }
 
             if (patternManager._bossRoomTeleporter && bossTeleportTime == 0 && patternManager._bossRoomTeleporter.Network_allPlayersInTeleporter) {
                 bossTeleportTime = DateTime.UtcNow.Ticks / 10000;
                 if (Plugin._SoloMode)
                     Plugin.AddChatMessage($"[DPSUI] Boss reached in {(float)(bossTeleportTime - dungeonStartTime) / 1000f} seconds!");
+                sendPacket();
             }
 
             if (!patternManager.Network_isBossDefeated && patternManager.Network_isBossEngaged && bossFightStartTime == 0) {
@@ -198,6 +200,7 @@ internal class DungeonInstance {
                         if (player)
                             RecordDamage(player, 0, true);
 
+                    sendPacket();
                 } else {
                     Plugin.logger.LogError("Boss is engaged but boss not found!");
                 }
