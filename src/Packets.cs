@@ -132,7 +132,7 @@ public class BinaryDPSPacket : BinaryPacketBase {
         for (int i = 0; i < bossDmgCount; i++) {
             pPlayer = players[reader.ReadByte()];
             damage = reader.ReadUInt32();
-            Plugin.logger.LogInfo($"{pPlayer.nickname}: {damage}");
+            //Plugin.logger.LogInfo($"{pPlayer.nickname}: {damage}");
             bossDamageValues.Add(new DPSValues(pPlayer, damage));
         }
 
