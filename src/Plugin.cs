@@ -177,9 +177,9 @@ public class Plugin : BaseUnityPlugin {
             logger.LogInfo("main player: " + Player._mainPlayer);
             logger.LogInfo($"Slide in time: {DPSUI_Config.transitionTime.Value}");
             logger.LogInfo($"UI Mode: {DPSUI_GUI._UIMode}");
-            LogFullHierarchy();
+            logger.LogInfo($"Update rate: {DPSUI_Config.clientUpdateRate.Value}");
 
-            Portal[] array = FindObjectsOfType<Portal>();
+            /*Portal[] array = FindObjectsOfType<Portal>();
             foreach (Portal portal in array) {
                 try {
                     if (portal.gameObject.activeSelf) {
@@ -188,7 +188,7 @@ public class Plugin : BaseUnityPlugin {
                     }
                 } catch {
                 }
-            }
+            }*/
 
             ScriptablePlayerBaseClass scriptablePlayerBaseClass = player.NC()?._pStats.NC()?._class;
             logger.LogInfo("Player base class name " + scriptablePlayerBaseClass._className);
