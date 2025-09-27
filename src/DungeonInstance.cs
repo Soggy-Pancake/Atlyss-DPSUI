@@ -285,7 +285,7 @@ internal class DungeonInstance {
             for (int i = 0; i < bossDamage.Count; i++) {
                 if (bossDamage[i].netId == player.netId) {
                     foundPlayer = true;
-                    bossDamage[i].totalDamage += unchecked((uint)(bossDamage[i].totalDamage + damage));
+                    bossDamage[i].totalDamage = (uint)((int)bossDamage[i].totalDamage + damage);
                 }
             }
 
@@ -299,7 +299,7 @@ internal class DungeonInstance {
             for (int i = 0; i < totalDungeonDamage.Count; i++) {
                 if (totalDungeonDamage[i].netId == player.netId) {
                     foundPlayer = true;
-                    totalDungeonDamage[i].totalDamage += unchecked((uint)(totalDungeonDamage[i].totalDamage + damage));
+                    totalDungeonDamage[i].totalDamage = (uint)((int)totalDungeonDamage[i].totalDamage + damage);
                 }
             }
 
