@@ -297,7 +297,7 @@ internal class DungeonInstance {
             for (int i = 0; i < totalDungeonDamage.Count; i++) {
                 if (totalDungeonDamage[i].netId == player.netId) {
                     foundPlayer = true;
-                    totalDungeonDamage[i].totalDamage += unchecked((uint)(bossDamage[i].totalDamage + damage));
+                    totalDungeonDamage[i].totalDamage += unchecked((uint)(totalDungeonDamage[i].totalDamage + damage));
                 }
             }
 
