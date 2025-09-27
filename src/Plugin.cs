@@ -13,7 +13,7 @@ using BepInEx.Bootstrap;
 
 namespace Atlyss_DPSUI;
 
-[BepInDependency("CodeTalker")]
+[BepInDependency("CodeTalker", "1.3.0")]
 [BepInDependency("EasySettings", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInPlugin("Soggy_Pancake.atlyssDPSUI", "AtlyssDPSUI", PluginInfo.VERSION)]
 public class Plugin : BaseUnityPlugin {
@@ -141,9 +141,6 @@ public class Plugin : BaseUnityPlugin {
 
         localDamage = new List<DamageHistory>();
         logger.LogInfo("Patch successful! Registering network listeners...");
-
-        if (Chainloader.PluginInfos.ContainsKey("CodeTalker"))
-            logger.LogError("Original CodeTalker is installed! This may cause conflicts! DISABLE/UNINSTALL THE ORIGINAL CODETALKER!");
 
         CodeTalkerNetwork.RegisterBinaryListener<BinaryClientHelloPacket>(ServerPatches.Server_RecieveHello);
 
