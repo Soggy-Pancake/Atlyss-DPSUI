@@ -236,7 +236,7 @@ internal class DungeonInstance {
                 return;
         }
         if (bossFightStartTime == 0) {
-            if (bossSpawner || bossSpawner._spawnedCreeps.Count != 0 || bossSpawner._spawnedCreeps[0] != null) {
+            if (bossSpawner && bossSpawner._spawnedCreeps.Count != 0 && bossSpawner._spawnedCreeps[0] != null) {
 
                 if (bossEntity == null) {
                     bossEntity = bossSpawner._spawnedCreeps[0];
