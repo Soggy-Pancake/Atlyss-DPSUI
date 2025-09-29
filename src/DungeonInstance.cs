@@ -155,33 +155,35 @@ internal class DungeonInstance {
     }
 
     public void Update() {
-        if (!Plugin._SoloMode && Dirty && Time.time >= lastSentUpdate + DPSUI_Config.clientUpdateRate.Value &&
-                (dungeonStartTime > 0 || (bossFightEndTime == 0 && bossFightStartTime > 0))
-            ) {
-            sendPacket();
-        }
 
         if (!haveLoadedPlayer) {
             foreach (Player player in map._peersInInstance) {
                 if (player && player.Network_currentGameCondition == GameCondition.IN_GAME) {
                     haveLoadedPlayer = true;
                     dungeonStartTime = DateTime.UtcNow.Ticks / 10000;
+                    Dirty = true;
                 }
             }
         }
+
+        if (!haveLoadedPlayer)
+            return;
+
         if (patternManager) {
             if (dungeonClearTime == 0 && patternManager.Network_allArenasBeaten) {
                 dungeonClearTime = DateTime.UtcNow.Ticks / 10000;
                 if (Plugin._SoloMode)
                     Plugin.AddChatMessage($"[DPSUI] Dungeon cleared in {(float)(dungeonClearTime - dungeonStartTime) / 1000f} seconds! (all arenas beaten)");
-                sendPacket();
+
+                Dirty = true;
             }
 
             if (patternManager._bossRoomTeleporter && bossTeleportTime == 0 && patternManager._bossRoomTeleporter.Network_allPlayersInTeleporter) {
                 bossTeleportTime = DateTime.UtcNow.Ticks / 10000;
                 if (Plugin._SoloMode)
                     Plugin.AddChatMessage($"[DPSUI] Boss reached in {(float)(bossTeleportTime - dungeonStartTime) / 1000f} seconds!");
-                sendPacket();
+
+                Dirty = true;
             }
 
             if (!patternManager.Network_isBossDefeated && patternManager.Network_isBossEngaged && bossFightStartTime == 0) {
@@ -199,7 +201,7 @@ internal class DungeonInstance {
                         if (player)
                             RecordDamage(player, 0, true);
 
-                    sendPacket();
+                    Dirty = true;
                 } else {
                     Plugin.logger.LogError("Boss is engaged but boss not found!");
                 }
@@ -219,7 +221,6 @@ internal class DungeonInstance {
                     Plugin.AddChatMessage($"[DPSUI] Dungeon finished in {(float)(bossFightEndTime - dungeonStartTime) / 1000f} seconds!");
                 }
             }
-            return;
         }
         if (!bossSpawner) {
             CreepSpawner[] array = Resources.FindObjectsOfTypeAll<CreepSpawner>();
@@ -235,25 +236,27 @@ internal class DungeonInstance {
                 return;
         }
         if (bossFightStartTime == 0) {
-            if (!bossSpawner || bossSpawner._spawnedCreeps.Count == 0 || bossSpawner._spawnedCreeps[0] == null)
-                return;
+            if (bossSpawner || bossSpawner._spawnedCreeps.Count != 0 || bossSpawner._spawnedCreeps[0] != null) {
 
-            if (bossEntity == null) {
-                bossEntity = bossSpawner._spawnedCreeps[0];
-                bossEntityNetID = bossEntity.netId;
+                if (bossEntity == null) {
+                    bossEntity = bossSpawner._spawnedCreeps[0];
+                    bossEntityNetID = bossEntity.netId;
+                }
+
+                if (bossEntity._aggroedEntity != null) {
+
+                    bossFightStartTime = DateTime.UtcNow.Ticks / 10000;
+                    Plugin.logger.LogInfo($"field boss engaged {bossFightStartTime}");
+
+                    if (bossEntity.Network_aggroedEntity._isPlayer)
+                        RecordDamage(bossEntity.Network_aggroedEntity._isPlayer, 0, true);
+
+                    foreach (Player player in bossSpawner._playersWithinSpawnerRadius)
+                        RecordDamage(player, 0, true);
+
+                    Dirty = true;
+                }
             }
-
-            if (bossEntity._aggroedEntity == null)
-                return;
-
-            bossFightStartTime = DateTime.UtcNow.Ticks / 10000;
-            Plugin.logger.LogInfo($"field boss engaged {bossFightStartTime}");
-
-            if (bossEntity.Network_aggroedEntity._isPlayer)
-                RecordDamage(bossEntity.Network_aggroedEntity._isPlayer, 0, true);
-
-            foreach (Player player in bossSpawner._playersWithinSpawnerRadius)
-                RecordDamage(player, 0, true);
         }
         if (bossFightStartTime > 0 && bossFightEndTime == 0 && bossEntity._statusEntity._currentHealth <= 0) {
             bossFightEndTime = DateTime.UtcNow.Ticks / 10000;
@@ -273,6 +276,12 @@ internal class DungeonInstance {
             bossFightStartTime = 0;
             bossFightEndTime = 0;
             bossDamage.Clear();
+        }
+
+        if (!Plugin._SoloMode && Dirty && Time.time >= lastSentUpdate + DPSUI_Config.clientUpdateRate.Value &&
+                (dungeonStartTime > 0 || (bossFightEndTime == 0 && bossFightStartTime > 0))
+            ) {
+            sendPacket();
         }
     }
 
