@@ -178,7 +178,7 @@ internal class DungeonInstance {
                 Dirty = true;
             }
 
-            if (patternManager._bossRoomTeleporter && bossTeleportTime == 0 && patternManager._bossRoomTeleporter.Network_allPlayersInTeleporter) {
+            if (patternManager._bossRoomTeleporter && bossTeleportTime == 0 && patternManager._bossRoomTeleporter.Network_allPlayersInTeleporter && map._peersInInstance.Count > 0) {
                 bossTeleportTime = DateTime.UtcNow.Ticks / 10000;
                 if (Plugin._SoloMode)
                     Plugin.AddChatMessage($"[DPSUI] Boss reached in {(float)(bossTeleportTime - dungeonStartTime) / 1000f} seconds!");
