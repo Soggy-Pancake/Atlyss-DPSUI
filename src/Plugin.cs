@@ -112,15 +112,15 @@ public class Plugin : BaseUnityPlugin {
             lastDPSPacket = dPSPacket;
         
 
-        if (lastDPSPacket.dungeonClearTime == 0 && dPSPacket.dungeonClearTime > 0) {
+        if (DPSUI_Config.speedyBoiMode.Value && lastDPSPacket.dungeonClearTime == 0 && dPSPacket.dungeonClearTime > 0) {
             AddChatMessage($"[DPSUI] Dungeon cleared in {(float)(dPSPacket.dungeonClearTime - dPSPacket.dungeonStartTime) / 1000f} seconds!(arenas only)");
         }
 
-        if (lastDPSPacket.bossTeleportTime == 0 && dPSPacket.bossTeleportTime > 0) {
+        if (DPSUI_Config.speedyBoiMode.Value && lastDPSPacket.bossTeleportTime == 0 && dPSPacket.bossTeleportTime > 0) {
             AddChatMessage($"[DPSUI] Boss reached in {(float)(dPSPacket.bossTeleportTime - dPSPacket.dungeonStartTime) / 1000f} seconds!");
         }
 
-        if (lastDPSPacket.bossFightEndTime == 0 && dPSPacket.bossFightEndTime > 0 && dPSPacket.dungeonStartTime > 0) {
+        if (DPSUI_Config.speedyBoiMode.Value && lastDPSPacket.bossFightEndTime == 0 && dPSPacket.bossFightEndTime > 0 && dPSPacket.dungeonStartTime > 0) {
             AddChatMessage($"[DPSUI] Boss beaten in {(float)(dPSPacket.bossFightEndTime - dPSPacket.bossFightStartTime) / 1000f} seconds!");
             AddChatMessage($"[DPSUI] Dungeon finished in {(float)(dPSPacket.bossFightEndTime - dPSPacket.dungeonStartTime) / 1000f} seconds!");
         }

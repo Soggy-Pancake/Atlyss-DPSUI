@@ -27,6 +27,8 @@ internal static class DPSUI_Config {
     internal static ConfigEntry<bool> showLocalUI;
     internal static ConfigEntry<bool> showPartyUI;
 
+    internal static ConfigEntry<bool> speedyBoiMode;
+
     internal static ConfigEntry<string> backgroundImage;
     internal static ConfigEntry<string> textFont;
 
@@ -48,9 +50,11 @@ internal static class DPSUI_Config {
         showPartyUI = config.Bind("General", "showPartyUI", true);
         keepDamageUntilPause = config.Bind("General", "keepDamageUntilPause", false, "Keep track of all of the damage since you started attacking until you stop instead of the last x seconds");
         showFullDungeonDamage = config.Bind("General", "showFullDungeonDamage", true, "Show damage totals while in the dungeon instead of just the boss");
+        speedyBoiMode = config.Bind("General", "speedyBoiMode", false, "Display dungeon split times.");
         backgroundImage = config.Bind("General", "backgroundImage", "_graphic/_ui/bk_06", "Background image to use for the party damage UI");
         textFont = config.Bind("General", "textFont", "", "Path of the font to use");
 
+        // Host only
         ConfigDescription updateDesc = new ConfigDescription("Minimum time in seconds between updates to clients", new AcceptableValueRange<float>(0.1f, 5f));
         clientUpdateRate = config.Bind("Host", "clientUpdateRate", 1f, updateDesc);
 
@@ -74,6 +78,7 @@ internal static class DPSUI_Config {
             modTab.AddHeader("Atlyss DPSUI");
             modTab.AddToggle(showPartyUI);
             modTab.AddToggle(showLocalUI);
+            modTab.AddToggle(speedyBoiMode);
             modTab.AddKeyButton(togglePartyUIBind);
             modTab.AddKeyButton(toggleLocalUIBind);
             modTab.AddKeyButton("Switch UI Mode", switchPartyUITypeBind);

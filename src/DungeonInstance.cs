@@ -172,7 +172,7 @@ internal class DungeonInstance {
         if (patternManager) {
             if (dungeonClearTime == 0 && patternManager.Network_allArenasBeaten) {
                 dungeonClearTime = DateTime.UtcNow.Ticks / 10000;
-                if (Plugin._SoloMode)
+                if (Plugin._SoloMode && DPSUI_Config.speedyBoiMode.Value)
                     Plugin.AddChatMessage($"[DPSUI] Dungeon cleared in {(float)(dungeonClearTime - dungeonStartTime) / 1000f} seconds! (all arenas beaten)");
 
                 Dirty = true;
@@ -180,15 +180,15 @@ internal class DungeonInstance {
 
             if (patternManager._bossRoomTeleporter && bossTeleportTime == 0 && patternManager._bossRoomTeleporter.Network_allPlayersInTeleporter && map._peersInInstance.Count > 0) {
                 bossTeleportTime = DateTime.UtcNow.Ticks / 10000;
-                if (Plugin._SoloMode)
-                    Plugin.AddChatMessage($"[DPSUI] Boss reached in {(float)(bossTeleportTime - dungeonStartTime) / 1000f} seconds!");
+                if (Plugin._SoloMode && DPSUI_Config.speedyBoiMode.Value)
+                    Plugin.AddChatMessage($"[DPSUI] Boss reached in {(bossTeleportTime - dungeonStartTime) / 1000f} seconds!");
 
                 Dirty = true;
             }
 
             if (!patternManager.Network_isBossDefeated && patternManager.Network_isBossEngaged && bossFightStartTime == 0) {
                 bossFightStartTime = DateTime.UtcNow.Ticks / 10000;
-                Plugin.logger.LogInfo("boss engaged " + bossFightStartTime);
+                Plugin.logger.LogInfo($"boss engaged {mapNetID}: {bossFightStartTime}");
 
                 if (bossSpawner && bossSpawner._spawnedCreeps.Count > 0) {
                     bossEntity = bossSpawner._spawnedCreeps[0];
@@ -216,7 +216,7 @@ internal class DungeonInstance {
                     Plugin.logger.LogDebug("Sent final update packet");
                 }
 
-                if (Plugin._SoloMode) {
+                if (Plugin._SoloMode && DPSUI_Config.speedyBoiMode.Value) {
                     Plugin.AddChatMessage($"[DPSUI] Boss beaten in {(float)(bossFightEndTime - bossFightStartTime) / 1000f} seconds!");
                     Plugin.AddChatMessage($"[DPSUI] Dungeon finished in {(float)(bossFightEndTime - dungeonStartTime) / 1000f} seconds!");
                 }
@@ -269,7 +269,7 @@ internal class DungeonInstance {
                 Plugin.logger.LogDebug("Sent final update packet");
             }
 
-            if (Plugin._SoloMode) {
+            if (Plugin._SoloMode && DPSUI_Config.speedyBoiMode.Value) {
                 Plugin.AddChatMessage($"[DPSUI] Boss beaten in {(float)(bossFightEndTime - bossFightStartTime) / 1000f} seconds!");
             }
 
