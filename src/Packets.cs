@@ -186,65 +186,6 @@ public class BinaryDPSPacket : BinaryPacketBase {
     public override string PacketSignature => "DPSPkt";
 }
 
-/*public class DPSPacket : PacketBase {
-    [JsonProperty]
-    public uint mapNetID;
-
-    [JsonProperty]
-    public long dungeonStartTime;
-
-    [JsonProperty]
-    public long dungeonClearTime;
-
-    [JsonProperty]
-    public long bossTeleportTime;
-
-    [JsonProperty]
-    public long bossFightStartTime;
-
-    [JsonProperty]
-    public long bossFightEndTime;
-
-    [JsonProperty]
-    public List<PacketPlayer> players;
-
-    [JsonProperty]
-    public List<DPSValues> bossDamageValues;
-
-    [JsonProperty]
-    public List<DPSValues> partyDamageValues;
-
-    public override string PacketSourceGUID => PluginInfo.GUID;
-
-    public DPSPacket() { }
-
-    internal DPSPacket(DungeonInstance instance) {
-        mapNetID = instance.mapNetID;
-        dungeonStartTime = instance.dungeonStartTime;
-        dungeonClearTime = instance.dungeonClearTime;
-        bossTeleportTime = instance.bossTeleportTime;
-        bossFightStartTime = instance.bossFightStartTime;
-        bossFightEndTime = instance.bossFightEndTime;
-        bossDamageValues = instance.bossDamage;
-        partyDamageValues = instance.totalDungeonDamage;
-        players = new List<PacketPlayer>();
-
-
-        var dict = new Dictionary<uint, DPSValues>();
-        foreach (var p in bossDamageValues.Concat(partyDamageValues))
-            if (!dict.ContainsKey(p.netId))
-                dict[p.netId] = p;
-
-        var dedupedPlayerList = dict.Values.ToArray();
-        for (int i = 0; i < dedupedPlayerList.Length; i++)
-            players.Add(new PacketPlayer(dedupedPlayerList[i]));
-    }
-
-    public static implicit operator bool(DPSPacket obj) {
-        return obj != null;
-    }
-}*/
-
 public class BinaryClientHelloPacket : BinaryPacketBase {
 
     public string version = PluginInfo.VERSION;
@@ -272,16 +213,6 @@ public class BinaryClientHelloPacket : BinaryPacketBase {
     public override string PacketSignature => "DPSCH"; // DPS Client Hello
 }
 
-/*public class DPSClientHelloPacket : PacketBase {
-    [JsonProperty]
-    public string version = PluginInfo.VERSION;
-
-    [JsonProperty]
-    public string nickname = "null";
-
-    public override string PacketSourceGUID => PluginInfo.GUID;
-}*/
-
 public class BinaryServerHelloPacket : BinaryPacketBase {
 
     public string version = PluginInfo.VERSION;
@@ -296,13 +227,3 @@ public class BinaryServerHelloPacket : BinaryPacketBase {
 
     public override string PacketSignature => "DPSSH"; // DPS Server Hello
 }
-
-/*public class DPSServerHelloPacket : PacketBase {
-    [JsonProperty]
-    public string response = "Hello";
-
-    [JsonProperty]
-    public string version = PluginInfo.VERSION;
-
-    public override string PacketSourceGUID => PluginInfo.GUID;
-}*/
