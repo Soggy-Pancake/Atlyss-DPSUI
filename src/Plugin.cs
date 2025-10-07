@@ -39,42 +39,6 @@ public class Plugin : BaseUnityPlugin {
 
     internal static BinaryDPSPacket lastDPSPacket;
 
-    /*internal static void BinaryPacketRecieve(PacketHeader header, BinaryPacketBase packet) {
-        if (packet is BinaryMsgTestPacket bPacket)
-            logger.LogInfo($"Recieved binary packet of length {bPacket.rawBytes.Length} from {header.SenderID}");
-    }*/
-
-    /*internal static void Client_ParseDungeonPartyDamage(PacketHeader header, PacketBase packet) {
-        if (!(packet is DPSPacket dPSPacket) || !Player._mainPlayer.NC()?.Network_playerMapInstance ||
-            dPSPacket.mapNetID != Player._mainPlayer.Network_playerMapInstance.netId) {
-            return;
-        }
-
-        logger.LogDebug("Recieved valid packet for instance!");
-        logger.LogDebug($"Boss fight start {dPSPacket.bossFightStartTime}!");
-        logger.LogDebug($"Boss fight end   {dPSPacket.bossFightEndTime}!");
-
-        if (!lastDPSPacket) {
-            lastDPSPacket = dPSPacket;
-        }
-
-        if (lastDPSPacket.dungeonClearTime == 0 && dPSPacket.dungeonClearTime > 0) {
-            AddChatMessage($"[DPSUI] Dungeon cleared in {(float)(dPSPacket.dungeonClearTime - dPSPacket.dungeonStartTime) / 1000f} seconds!(arenas only)");
-        }
-
-        if (lastDPSPacket.bossTeleportTime == 0 && dPSPacket.bossTeleportTime > 0) {
-            AddChatMessage($"[DPSUI] Boss reached in {(float)(dPSPacket.bossTeleportTime - dPSPacket.dungeonStartTime) / 1000f} seconds!");
-        }
-
-        if (lastDPSPacket.bossFightEndTime == 0 && dPSPacket.bossFightEndTime > 0 && dPSPacket.dungeonStartTime > 0) {
-            AddChatMessage($"[DPSUI] Boss beaten in {(float)(dPSPacket.bossFightEndTime - dPSPacket.bossFightStartTime) / 1000f} seconds!");
-            AddChatMessage($"[DPSUI] Dungeon finished in {(float)(dPSPacket.bossFightEndTime - dPSPacket.dungeonStartTime) / 1000f} seconds!");
-        }
-
-        DPSUI_GUI._UI.UpdatePartyDamageValues(dPSPacket);
-        lastDPSPacket = dPSPacket;
-    }*/
-
     internal static void Client_ParseDungeonPartyDamage(PacketHeader header, BinaryPacketBase packet) {
         if (!(packet is BinaryDPSPacket dPSPacket) || !Player._mainPlayer.NC()?.Network_playerMapInstance ||
             dPSPacket.mapNetID != Player._mainPlayer.Network_playerMapInstance.netId) {
@@ -142,7 +106,7 @@ public class Plugin : BaseUnityPlugin {
         localDamage = new List<DamageHistory>();
         logger.LogInfo("Patch successful! Registering network listeners...");
 
-        CodeTalkerNetwork.RegisterBinaryListener<BinaryClientHelloPacket>(ServerPatches.Server_RecieveHello);
+        CodeTalkerNetwork.RegisterBinaryListener<BinaryClientHelloPacket>(ServerPatches.Server_RecieveBinaryHello);
 
         if (!Environment.GetCommandLineArgs().Contains("-server")) {
             _harmony.PatchAll(typeof(ClientPatches));

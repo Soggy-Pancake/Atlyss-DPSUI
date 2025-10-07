@@ -33,21 +33,6 @@ internal class ClientPatches {
         }
     }
 
-    /*internal static void Client_RecieveHello(PacketHeader header, PacketBase packet) {
-        if (Plugin._serverSupport || !header.SenderIsLobbyOwner || Plugin.player.NC()?.Network_isHostPlayer == true || !(packet is DPSServerHelloPacket dPSServerHelloPacket))
-            return;
-
-        if (dPSServerHelloPacket.response == "Hello") {
-            Plugin.logger.LogInfo("Client recieved hello. Server DPSUI version is " + dPSServerHelloPacket.version);
-
-            if (dPSServerHelloPacket.version != PluginInfo.VERSION) {
-                Plugin.logger.LogWarning("Server version mismatch!");
-                Player._mainPlayer._chatBehaviour.New_ChatMessage("<color=#fce75d>Server AtlyssDPSUI Version mismatch! (Server version: " + dPSServerHelloPacket.version + ")</color>");
-            }
-            Plugin._serverSupport = true;
-        }
-    }*/
-
     internal static void Client_RecieveHello(PacketHeader header, BinaryPacketBase packet) {
         /*if (Plugin._serverSupport || !header.SenderIsLobbyOwner || Plugin.player.NC()?.Network_isHostPlayer == true || !(packet is BinaryServerHelloPacket dPSServerHelloPacket))
             return;*/
