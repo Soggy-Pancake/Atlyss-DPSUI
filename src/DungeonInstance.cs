@@ -38,8 +38,10 @@ public class DPSValues : Boolable {
                 }
             }
         } else
-            classIcon = sPClass._classIcon.name;
+            classIcon = sPClass?._classIcon?.name;
 
+        if(player._pStats.Network_syncClass == "")
+            classIcon = "_clsIco_novice";
 
         Color32 playerColor;
         try {
