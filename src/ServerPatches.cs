@@ -42,12 +42,9 @@ internal class ServerPatches {
     [HarmonyPatch(typeof(MapInstance), "Apply_InstanceData")]
     [HarmonyPostfix]
     internal static void OnMapLoad(MapInstance __instance) {
-        if (__instance._zoneType == ZoneType.Dungeon || PluginInfo.FIELDS_WITH_BOSSES.Contains(__instance._mapName)) {
+        if (__instance._zoneType != ZoneType.Safe) {
             DungeonInstance dungeonInstance = new DungeonInstance(__instance);
-            dungeonInstance.Update();
             Plugin.dungeonInstances.Add(dungeonInstance);
-        } else {
-            Plugin.logger.LogInfo($"{__instance._mapName} not added to dungeon list.");
         }
     }
 }
