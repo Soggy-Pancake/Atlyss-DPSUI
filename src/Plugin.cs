@@ -152,8 +152,8 @@ public class Plugin : BaseUnityPlugin {
             }*/
 
             ScriptablePlayerBaseClass scriptablePlayerBaseClass = player.NC()?._pStats.NC()?._class;
-            logger.LogInfo("Player base class name " + scriptablePlayerBaseClass._className);
-            if (player._pStats._syncClassTier != 0) {
+            logger.LogInfo("Player base class name " + scriptablePlayerBaseClass.NC()?._className);
+            if (player?._pStats?._syncClassTier != 0) {
                 logger.LogInfo("Has subclass!");
                 try {
                     logger.LogInfo("Player base class name " + scriptablePlayerBaseClass._playerClassTiers[Player._mainPlayer._pStats._syncClassTier - 1]._classTierIcon.name);
