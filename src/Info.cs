@@ -15,15 +15,5 @@ internal class PluginInfo {
 
     public const int MAX_HELLO_RETRY = 5;
     public const int FIELD_BOSS_TIMEOUT_MS = 30000;
-
-    internal static readonly string[] FIELDS_WITH_BOSSES = new string[] {
-            "Effold Terrace",
-            "Tuul Valley"
-        };
-
-    internal static readonly string[] FIELD_BOSSES = new string[] {
-            "Slime Diva",
-            "Gahool"
-        };
 }
 
