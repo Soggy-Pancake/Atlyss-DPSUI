@@ -202,7 +202,7 @@ public class Plugin : BaseUnityPlugin {
 
                 if (!dungeonInstances[i].map) {
                     dungeonInstances.RemoveAt(i);
-                    logger.LogInfo("Dungeon was unloaded!");
+                    logger.LogDebug($"Dungeon was unloaded!");
                 } else {
                     dungeonInstance.Update();
                 }
