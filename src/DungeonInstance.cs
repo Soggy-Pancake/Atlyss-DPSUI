@@ -66,6 +66,7 @@ internal class DungeonInstance {
 
     public MapInstance map;
     public PatternInstanceManager patternManager;
+    public List<CreepSpawner> bossSpawners;
     public CreepSpawner bossSpawner;
     public Creep bossEntity;
 
@@ -90,6 +91,8 @@ internal class DungeonInstance {
     public DungeonInstance(MapInstance newMap) {
         map = newMap;
         patternManager = map._patternInstance;
+        bossSpawners = new List<CreepSpawner>();
+
         if (patternManager)
             bossSpawner = patternManager._bossSpawner;
 
@@ -223,21 +226,34 @@ internal class DungeonInstance {
                     Plugin.AddChatMessage($"[DPSUI] Dungeon finished in {(float)(bossFightEndTime - dungeonStartTime) / 1000f} seconds!");
                 }
             }
-        }
-        if (!bossSpawner) {
-            CreepSpawner[] array = Resources.FindObjectsOfTypeAll<CreepSpawner>();
+        } else if (bossSpawners.Count == 0) {
+            Plugin.logger?.LogDebug($"Looking for boss spawner in {map._mapName}...");
+            CreepSpawner[] array = map._loadedScene.GetRootGameObjects().FirstOrDefault(o => o.name == "_CREEPSPAWNER" || o.name == "_CREEPSPAWNERS")?.GetComponentsInChildren<CreepSpawner>();
             foreach (CreepSpawner creepSpawner in array) {
-                Plugin.logger?.LogInfo(creepSpawner.name + " spawn count: " + creepSpawner._creepCount);
-                if (creepSpawner._creepToSpawn != null && PluginInfo.FIELD_BOSSES.Contains(creepSpawner._creepToSpawn._creepName)) {
-                    bossSpawner = creepSpawner;
-                    break;
+                Plugin.logger?.LogDebug(creepSpawner.name + " spawn count: " + creepSpawner._creepCount);
+                if ((creepSpawner._creepToSpawn != null && creepSpawner._isSpecialSpawn) || creepSpawner._creepToSpawn?._creepName == "Slime Diva") {
+                    Plugin.logger?.LogDebug($"Found elite spawn? {creepSpawner.name}");
+                    bossSpawners.Add(creepSpawner);
                 }
             }
 
-            if (!bossSpawner)
+            if (!bossSpawner && bossSpawners.Count == 0) {
+                Plugin.dungeonInstances.Remove(this);
+                Plugin.logger?.LogDebug($"Could not find boss/elite spawner in {map._mapName}, not a dungeon instance");
                 return;
+            }
         }
         if (bossFightStartTime == 0) {
+            if (!bossSpawner && bossSpawners.Count > 0) {
+                foreach (var eliteSpawner in bossSpawners) { 
+                    if(eliteSpawner && eliteSpawner._spawnedCreeps.Count > 0) {
+                        bossSpawner = eliteSpawner;
+                        Plugin.logger?.LogDebug($"Set boss spawner to {bossSpawner.name} in {map._mapName}");
+                        break;
+                    }
+                }
+            }
+
             if (bossSpawner && bossSpawner._spawnedCreeps.Count != 0 && bossSpawner._spawnedCreeps[0] != null) {
 
                 if (bossEntity == null) {
