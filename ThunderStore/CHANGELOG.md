@@ -13,8 +13,6 @@
 		- Dungeon DPS packets are a minimum of 64 bytes and with 16 players might be around 800 bytes
 	- Known issues:
 		- Might be an issue with player color being incorrect
-- Package new CodeTalker with the mod. It has a version of 1.3.0 so it replaces the original
-	- There are no changes to the standard json packets, just added support for binary packets.
 - Client update rate is now configurable!
 - Added 'speedyBoiMode' config option (default: false)
 	- When enabled it turns on the dungeon timer chat messages
