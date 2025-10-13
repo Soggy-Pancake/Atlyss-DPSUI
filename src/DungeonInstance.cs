@@ -228,7 +228,7 @@ internal class DungeonInstance {
             }
         } else if (bossSpawners.Count == 0) {
             Plugin.logger?.LogDebug($"Looking for boss spawner in {map._mapName}...");
-            CreepSpawner[] array = map._loadedScene.GetRootGameObjects().FirstOrDefault(o => o.name == "_CREEPSPAWNER" || o.name == "_CREEPSPAWNERS")?.GetComponentsInChildren<CreepSpawner>();
+            CreepSpawner[] array = map._loadedScene.GetRootGameObjects().FirstOrDefault(o => o.name == "_CREEPSPAWNER" || o.name == "_CREEPSPAWNERS")?.GetComponentsInChildren<CreepSpawner>() ?? Array.Empty<CreepSpawner>();
             foreach (CreepSpawner creepSpawner in array) {
                 Plugin.logger?.LogDebug(creepSpawner.name + " spawn count: " + creepSpawner._creepCount);
                 if ((creepSpawner._creepToSpawn != null && creepSpawner._isSpecialSpawn) || creepSpawner._creepToSpawn?._creepName == "Slime Diva") {
