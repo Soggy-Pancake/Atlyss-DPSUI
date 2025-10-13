@@ -1,3 +1,8 @@
+## 1.1.1
+
+- Tripple 1s!
+- Fix exceptions when searching for field bosses in custom maps
+
 ## 1.1.0
 - BEEG changes to networking
 	- Switched to my own fork of codetalker that supports sending binary packets with a similar setup to standard packets

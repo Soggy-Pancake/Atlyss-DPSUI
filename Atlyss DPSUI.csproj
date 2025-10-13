@@ -6,7 +6,7 @@
 		<LangVersion>latest</LangVersion>
 
 		<!-- Version is automatically copied to source files on build -->
-		<Version>1.1.0</Version>
+		<Version>1.1.1</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
