@@ -1,3 +1,28 @@
+## 1.1.0
+- BEEG changes to networking
+	- Switched to my own fork of codetalker that supports sending binary packets with a similar setup to standard packets
+		- **Complaints about packet size should stop now**
+	- Dedupe player info in packets 
+		- the damage lists now reference player index in the packet and have the damage value for that player (u8 + u32) per damage entry
+	- No more massive packet size overhead when dealing with json but a bit more work to serialize/deserialize
+	- removed old json packets
+	- Dungeons dont send update packet unless a change has been made
+	- Packets should be about 20% of the size they were before!
+		- Client hello packet is about 30 bytes
+		- Server hello packet is about 20 bytes
+		- Dungeon DPS packets are a minimum of 64 bytes and with 16 players might be around 800 bytes
+	- Known issues:
+		- Might be an issue with player color being incorrect
+- Package new CodeTalker with the mod. It has a version of 1.3.0 so it replaces the original
+	- There are no changes to the standard json packets, just added support for binary packets.
+- Client update rate is now configurable!
+- Added 'speedyBoiMode' config option (default: false)
+	- When enabled it turns on the dungeon timer chat messages
+- Supports the new 102025.a1 update
+	- Elites are now treated as field bosses
+	- The only hard coded search is now Slime Diva
+- Less errors hopefully
+
 ## 1.0.6
 - Show ui while player is dead
 
