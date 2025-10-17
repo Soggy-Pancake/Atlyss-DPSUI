@@ -13,5 +13,5 @@ public class Boolable {
 }
 
 public static class UnityNullFix {
-    public static T NC<T>(this T obj) where T : UnityEngine.Object => obj ? obj : null;
+    public static T? NC<T>(this T obj) where T : UnityEngine.Object => obj ? obj : null;
 }
