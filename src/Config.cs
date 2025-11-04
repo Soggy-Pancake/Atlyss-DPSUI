@@ -10,9 +10,9 @@ using BepInEx.Bootstrap;
 using UnityEngine;
 
 namespace Atlyss_DPSUI;
+#pragma warning disable CS8618 
 
 internal static class DPSUI_Config {
-
     internal static ConfigFile config;
 
     internal static ConfigEntry<KeyCode> togglePartyUIBind;

@@ -10,8 +10,10 @@ using UnityEngine.SceneManagement;
 using CodeTalker.Packets;
 using CodeTalker.Networking;
 using BepInEx.Bootstrap;
+using Mirror;
 
 namespace Atlyss_DPSUI;
+#pragma warning disable CS8618 
 
 [BepInDependency("CodeTalker", "1.3.0")]
 [BepInDependency("EasySettings", BepInDependency.DependencyFlags.SoftDependency)]
@@ -22,7 +24,7 @@ public class Plugin : BaseUnityPlugin {
     internal static Harmony _harmony;
     internal static ManualLogSource logger;
 
-    internal static Player player;
+    internal static Player? player;
     internal static InGameUI GameUI;
     public static Text localDpsText;
 
@@ -89,7 +91,7 @@ public class Plugin : BaseUnityPlugin {
             AddChatMessage($"[DPSUI] Dungeon finished in {(float)(dPSPacket.bossFightEndTime - dPSPacket.dungeonStartTime) / 1000f} seconds!");
         }
 
-        DPSUI_GUI._UI.UpdatePartyDamageValues(dPSPacket);
+        DPSUI_GUI._UI?.UpdatePartyDamageValues(dPSPacket);
         lastDPSPacket = dPSPacket;
     }
 
@@ -103,7 +105,12 @@ public class Plugin : BaseUnityPlugin {
         _harmony = new Harmony(PluginInfo.GUID);
         DPSUI_Config.init(Config);
 
+        if(Application.version != PluginInfo.GAME_VERSION) {
+            logger.LogWarning($"[VERSION MISMATCH] This version of AtlyssDPSUI is made for game version {PluginInfo.GAME_VERSION}, you are running {Application.version}. Unexpected issues may occur.");
+        }
+
         localDamage = new List<DamageHistory>();
+        _harmony.PatchAll(typeof(ServerPatches));
         logger.LogInfo("Patch successful! Registering network listeners...");
 
         CodeTalkerNetwork.RegisterBinaryListener<BinaryClientHelloPacket>(ServerPatches.Server_RecieveBinaryHello);
@@ -117,7 +124,6 @@ public class Plugin : BaseUnityPlugin {
             _serverSupport = _AmHeadless = true;
         }
 
-        _harmony.PatchAll(typeof(ServerPatches));
     }
 
     private void Update() {
@@ -132,7 +138,7 @@ public class Plugin : BaseUnityPlugin {
         if (GameUI == null)
             GameUI = InGameUI._current;
 
-        DPSUI_GUI._UI.Update();
+        DPSUI_GUI._UI?.Update();
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.RightShift)) {
             logger.LogInfo("main player: " + Player._mainPlayer);
@@ -151,12 +157,18 @@ public class Plugin : BaseUnityPlugin {
                 }
             }*/
 
-            ScriptablePlayerBaseClass scriptablePlayerBaseClass = player.NC()?._pStats.NC()?._class;
-            logger.LogInfo("Player base class name " + scriptablePlayerBaseClass.NC()?._className);
+            if (NetworkClient.isConnected) {
+                logger.LogInfo(Transport.active.ServerUri().ToString());
+                logger.LogInfo(SteamLobby._current._currentLobbyID);
+                logger.LogInfo(AtlyssNetworkManager._current.networkAddress);
+            }
+
+            ScriptablePlayerBaseClass? scriptablePlayerBaseClass = player?.NC()?._pStats.NC()?._class;
+            logger.LogInfo("Player base class name " + scriptablePlayerBaseClass?.NC()?._className);
             if (player?._pStats?._syncClassTier != 0) {
                 logger.LogInfo("Has subclass!");
                 try {
-                    logger.LogInfo("Player base class name " + scriptablePlayerBaseClass._playerClassTiers[Player._mainPlayer._pStats._syncClassTier - 1]._classTierIcon.name);
+                    logger.LogInfo("Player base class name " + scriptablePlayerBaseClass?._playerClassTiers[Player._mainPlayer._pStats._syncClassTier - 1]._classTierIcon.name);
                 } catch { }
             }
             logger.LogError($"Dungeon instances tracked: {dungeonInstances.Count}");
@@ -165,7 +177,7 @@ public class Plugin : BaseUnityPlugin {
             }
         }
 
-        if (!player._inChat && !player._inUI) {
+        if (player?.NC() != null && !player._inChat && !player._inUI) {
             if (Input.GetKeyDown(DPSUI_Config.togglePartyUIBind.Value)) {
                 DPSUI_Config.showPartyUI.Value = (DPSUI_GUI.userShowPartyUI = !DPSUI_GUI.userShowPartyUI);
                 AddGameFeedMessage((DPSUI_GUI.userShowPartyUI ? "Enabled" : "Disabled") + " party UI");
@@ -219,8 +231,8 @@ public class Plugin : BaseUnityPlugin {
             return;
         }
 
-        MapInstance mapInstance = player.Network_playerMapInstance.NC();
-        if (mapInstance && mapInstance._zoneType == ZoneType.Field) {
+        MapInstance? mapInstance = player?.NC()?.Network_playerMapInstance?.NC();
+        if (mapInstance != null && mapInstance._zoneType == ZoneType.Field) {
             BinaryDPSPacket dPSPacket = lastDPSPacket;
             if (dPSPacket != null && dPSPacket.bossFightEndTime > 0 && lastDPSPacket.bossFightEndTime < DateTime.UtcNow.Ticks / 10000 - 30000) {
                 DPSUI_GUI.showPartyUI = false;
@@ -239,7 +251,7 @@ public class Plugin : BaseUnityPlugin {
             logger.LogInfo("Server support " + _serverSupport);
             logger.LogInfo("AmServer " + _serverSupport);
             logger.LogInfo("last dps packet " + lastDPSPacket);
-            logger.LogInfo($"Show partyUI: {DPSUI_GUI.showPartyUI}; Show localUI: {DPSUI_GUI.showLocalUI}; Player in ui: {player._inUI}");
+            logger.LogInfo($"Show partyUI: {DPSUI_GUI.showPartyUI}; Show localUI: {DPSUI_GUI.showLocalUI}; Player in ui: {player?._inUI}");
             if (_AmServer) {
                 logger.LogInfo("\nSpawners:");
                 CreepSpawner[] array = Resources.FindObjectsOfTypeAll<CreepSpawner>();

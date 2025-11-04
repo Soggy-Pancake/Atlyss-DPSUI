@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System;
 
 namespace Atlyss_DPSUI;
+#pragma warning disable CS8618 
 
 public enum UIMode {
     Auto,
@@ -16,8 +17,8 @@ public class DPSUI_GUI : Boolable {
     internal class PartyMemberBar {
         internal GameObject self;
 
-        private Text memberInfo;
-        private Text damageText;
+        private Text? memberInfo;
+        private Text? damageText;
 
         private RectTransform background;
         private RectTransform fillBar;
@@ -63,28 +64,35 @@ public class DPSUI_GUI : Boolable {
             GameObject val4 = new GameObject("MemberName", typeof(Text));
             setupRectTransform(val4, new Vector2(0.16f, 0.5f), self, ignoreParentRect: true);
             memberInfo = setupText(val4, 20);
-            val4.AddComponent<Shadow>();
-            memberInfo.alignment = TextAnchor.MiddleLeft;
-            memberInfo.text = "Dumbass";
+            if (memberInfo != null) {
+                val4.AddComponent<Shadow>();
+                memberInfo.alignment = TextAnchor.MiddleLeft;
+                memberInfo.text = "Dumbass";
+            }
 
             val4 = new GameObject("DamageText", typeof(Text));
             setupRectTransform(val4, new Vector2(0.97f, 0.5f), self, ignoreParentRect: true);
             damageText = setupText(val4, 20);
-            val4.AddComponent<Shadow>();
-            damageText.alignment = TextAnchor.MiddleRight;
-            damageText.text = "Fuck all";
+            if (damageText != null) {
+                val4.AddComponent<Shadow>();
+                damageText.alignment = TextAnchor.MiddleRight;
+                damageText.text = "Fuck all";
+            }
         }
 
         internal void UpdateInfo(DPSValues info, float barFillPercent) {
-            memberInfo.text = info.nickname;
-            if (info.netId == Player._mainPlayer.netId)
-                memberInfo.text += " (You)";
+            if (memberInfo != null) {
+                memberInfo.text = info.nickname;
+                if (info.netId == Player._mainPlayer.netId)
+                    memberInfo.text += " (You)";
+            }
 
             string text = info.totalDamage.ToString("n1");
             if (text.EndsWith(".0"))
                 text = text.Substring(0, text.Length - 2);
 
-            damageText.text = text;
+            if (damageText != null)
+                damageText.text = text;
             barFillPercent = Mathf.Max(barFillPercent, 1E-05f);
             fillBar.anchorMax = new Vector2(barFillPercent, 1f);
             self.SetActive(true);
@@ -114,7 +122,7 @@ public class DPSUI_GUI : Boolable {
         }
     }
 
-    public static DPSUI_GUI _UI;
+    public static DPSUI_GUI? _UI;
     internal static InGameUI gameUI;
     public static UIMode _UIMode;
 
@@ -152,10 +160,10 @@ public class DPSUI_GUI : Boolable {
 
     internal Canvas rootCanvas;
 
-    internal Text localDpsText;
-    internal Text partyTotalText;
-    internal Text partyDpsText;
-    internal Text partyDpsLabelText;
+    internal Text? localDpsText;
+    internal Text? partyTotalText;
+    internal Text? partyDpsText;
+    internal Text? partyDpsLabelText;
 
     internal static Texture2D[] classImages;
     internal PartyMemberBar[] memberBars;
@@ -194,7 +202,7 @@ public class DPSUI_GUI : Boolable {
         get { return _showLocalUI; }
         set {
             _showLocalUI = value;
-            if ((bool)_UI) {
+            if (_UI ?? false) {
                 _UI.UpdateVisibility();
             }
         }
@@ -211,13 +219,13 @@ public class DPSUI_GUI : Boolable {
         partyAnimPos = 0f;
     }
 
-    public static RectTransform setupRectTransform(GameObject obj, Vector2 anchor, GameObject parent = null, bool ignoreParentRect = false) {
+    public static RectTransform setupRectTransform(GameObject obj, Vector2 anchor, GameObject? parent = null, bool ignoreParentRect = false) {
         RectTransform rect = obj.GetComponent<RectTransform>();
         rect.pivot = anchor;
         rect.anchorMin = anchor;
         rect.anchorMax = anchor;
 
-        if (parent) {
+        if (parent != null) {
             setParent(obj, parent);
             if (!ignoreParentRect) {
                 RectTransform parentRect = parent.GetComponent<RectTransform>();
@@ -230,7 +238,7 @@ public class DPSUI_GUI : Boolable {
         return rect;
     }
 
-    public static Text setupText(GameObject textObj, int fontSize = 10) {
+    public static Text? setupText(GameObject textObj, int fontSize = 10) {
         Text component = textObj.GetComponent<Text>();
         if (component == null)
             return null;
@@ -253,7 +261,7 @@ public class DPSUI_GUI : Boolable {
         return component;
     }
 
-    public static GameObject AddBackground(GameObject uiObjt, Texture2D image = null, Sprite sprite = null) {
+    public static GameObject AddBackground(GameObject uiObjt, Texture2D? image = null, Sprite? sprite = null) {
         GameObject background = new GameObject("Background", typeof(RectTransform), typeof(Image));
         setParent(background, uiObjt);
 
@@ -265,7 +273,7 @@ public class DPSUI_GUI : Boolable {
         background.gameObject.layer = LayerMask.NameToLayer("UI");
 
         Image imgComp = background.GetComponent<Image>();
-        if (image) {
+        if (image != null) {
             imgComp.sprite = Sprite.Create(image, new Rect(0f, 0f, image.width, image.height), new Vector2(0.5f, 0.5f));
             imgComp.type = Image.Type.Sliced;
         } else if (sprite) {
@@ -309,10 +317,11 @@ public class DPSUI_GUI : Boolable {
             GameObject localDPSText = new GameObject("DpsText", typeof(Text));
             setupRectTransform(localDPSText, Vector2.right, localDPSContainer);
             localDpsText = setupText(localDPSText, 25);
-            localDpsText.text = "0 DPS";
+            if (localDpsText != null)
+                localDpsText.text = "0 DPS";
 
-            Texture2D backgroundImage = null;
-            Sprite backgroundSprite = null;
+            Texture2D? backgroundImage = null;
+            Sprite? backgroundSprite = null;
 
             try {
                 UnityEngine.Object bgValue = Resources.Load<Sprite>(DPSUI_Config.backgroundImage.Value);
@@ -357,23 +366,28 @@ public class DPSUI_GUI : Boolable {
             GameObject partyLabelText = new GameObject("PartyLabelText", typeof(Text));
             setupRectTransform(partyLabelText, new Vector2(0.5f, 0.5f), partyLabelContainer, true);
             partyDpsLabelText = setupText(partyLabelText, 20);
-            partyDpsLabelText.alignment = TextAnchor.MiddleCenter;
+            if (partyDpsLabelText != null)
+                partyDpsLabelText.alignment = TextAnchor.MiddleCenter;
 
             GameObject val9 = new GameObject("PartyTotalText", typeof(Text));
             RectTransform obj8 = setupRectTransform(val9, PartyDPS_TotalPos, partyContainer, true);
             partyTotalText = setupText(val9, topTextSize);
-            val9.AddComponent<Shadow>();
-            partyTotalText.alignment = TextAnchor.UpperLeft;
-            obj8.anchoredPosition = Vector2.zero;
-            partyTotalText.text = "Total: 8000";
+            if (partyTotalText != null) {
+                val9.AddComponent<Shadow>();
+                partyTotalText.alignment = TextAnchor.UpperLeft;
+                obj8.anchoredPosition = Vector2.zero;
+                partyTotalText.text = "Total: 8000";
+            }
 
             GameObject partyDPSText = new GameObject("PartyDPSText", typeof(Text));
             RectTransform partyDPSTextTrans = setupRectTransform(partyDPSText, PartyDPS_DPSPos, partyContainer, true);
             partyDpsText = setupText(partyDPSText, topTextSize);
-            partyDPSText.AddComponent<Shadow>();
-            partyDpsText.alignment = TextAnchor.UpperRight;
-            partyDPSTextTrans.anchoredPosition = Vector2.zero;
-            partyDpsText.text = "8000 DPS";
+            if (partyDpsText != null) {
+                partyDPSText.AddComponent<Shadow>();
+                partyDpsText.alignment = TextAnchor.UpperRight;
+                partyDPSTextTrans.anchoredPosition = Vector2.zero;
+                partyDpsText.text = "8000 DPS";
+            }
 
             float memberBarHeight = (1f - topTextSpace - (MaxShownPartyMembers - 1) * memberSpacing - edgePadding) / (float)MaxShownPartyMembers;
             memberBars = new PartyMemberBar[MaxShownPartyMembers];
@@ -431,7 +445,8 @@ public class DPSUI_GUI : Boolable {
                 text = text.Substring(0, text.IndexOf('.'));
 
             string text2 = text + " DPS";
-            localDpsText.text = text2;
+            if (localDpsText != null)
+                localDpsText.text = text2;
         }
     }
 
@@ -461,13 +476,13 @@ public class DPSUI_GUI : Boolable {
             return;
         }
 
-        values.Sort((b, a) => a.totalDamage.CompareTo(b.totalDamage));
+        values?.Sort((b, a) => a.totalDamage.CompareTo(b.totalDamage));
 
         int playerIdx = -1;
         uint totalDamage = 0;
         uint playerNetID = Player._mainPlayer.netId;
         DPSValues v;
-        for (int i = 0; i < values.Count; i++) {
+        for (int i = 0; i < values?.Count; i++) {
             v = values[i];
             totalDamage += v.totalDamage;
             if (v.netId == playerNetID)
@@ -483,19 +498,21 @@ public class DPSUI_GUI : Boolable {
         float totalTime = (endTime - startTime) / 1000f;
         float dps = totalDamage / totalTime;
 
-        partyTotalText.text = "Total: " + totalDamage;
+        if (partyTotalText != null)
+            partyTotalText.text = "Total: " + totalDamage;
         string text = dps.ToString("n1");
         if (text.EndsWith(".0"))
             text = text.Substring(0, text.Length - 2);
 
-        partyDpsText.text = text + " DPS";
+        if (partyDpsText != null)
+            partyDpsText.text = text + " DPS";
 
         for (int i = 0; i < memberBars.Length; i++)
             memberBars[i].self.SetActive(false);
 
         showPartyUI = true;
         bool addedLocalPlayer = false;
-        for (int i = 0; i < values.Count; i++) {
+        for (int i = 0; i < values?.Count; i++) {
             v = values[i];
 
             if (v.netId == playerNetID)
@@ -512,8 +529,10 @@ public class DPSUI_GUI : Boolable {
     }
 
     internal void clearDamageValues() {
-        partyTotalText.text = "Total: 0";
-        partyDpsText.text = "0 DPS";
+        if (partyTotalText != null)
+            partyTotalText.text = "Total: 0";
+        if (partyDpsText != null)
+            partyDpsText.text = "0 DPS";
 
         foreach (PartyMemberBar obj in memberBars) {
             obj.UpdateInfo(new DPSValues(), 0f);
@@ -526,7 +545,7 @@ public class DPSUI_GUI : Boolable {
             return;
 
         if ((gameUI._displayUI && !Player._mainPlayer._inUI) != showUI) {
-            showUI = gameUI._displayUI && (!Plugin.player._inUI || Plugin.player._currentPlayerCondition == PlayerCondition.DEAD);
+            showUI = gameUI._displayUI && (!Plugin.player?._inUI ?? false || Plugin.player?._currentPlayerCondition == PlayerCondition.DEAD);
             localDpsContainer.SetActive(showLocalUI && _userShowLocalUI && showUI);
         }
 

@@ -14,8 +14,8 @@ public class DPSValues : Boolable {
     public uint netId;
     public uint color;
     public uint totalDamage;
-    public string nickname;
-    public string classIcon;
+    public string nickname = "";
+    public string classIcon = "";
 
     public DPSValues() { }
 
@@ -38,16 +38,18 @@ public class DPSValues : Boolable {
                 }
             }
         } else
-            classIcon = sPClass?._classIcon?.name;
+            if(sPClass.NC()?._classIcon.NC()?.name != null)
+                classIcon = sPClass._classIcon.name;
 
         if(player._pStats.Network_syncClass == "")
             classIcon = "_clsIco_novice";
 
-        Color32 playerColor;
+        Color32 playerColor = Color.white;
         try {
             playerColor = player._pVisual._blockOrbRender.material.GetColor("_EmissionColor");
         } catch {
-            playerColor = sPClass._blockEmissionColor;
+            if(sPClass != null)
+                playerColor = sPClass._blockEmissionColor;
         }
 
         color = (uint)((playerColor.r << 24) | (playerColor.g << 16) | (playerColor.b << 8) | playerColor.a);
@@ -67,8 +69,8 @@ internal class DungeonInstance {
     public MapInstance map;
     public PatternInstanceManager patternManager;
     public List<CreepSpawner> bossSpawners;
-    public CreepSpawner bossSpawner;
-    public Creep bossEntity;
+    public CreepSpawner? bossSpawner;
+    public Creep? bossEntity;
 
     public uint mapNetID;
     public uint bossEntityNetID;
@@ -136,7 +138,7 @@ internal class DungeonInstance {
                 bossStatus = "Defeated";
 
             Plugin.logger.LogInfo("Boss status: (" + bossStatus + ")");
-            if (bossEntity)
+            if (bossEntity != null)
                 Plugin.logger.LogInfo($"Boss max hp: {bossEntity._statStruct._maxHealth}");
 
             Plugin.logger.LogInfo($"Dungeon start time: {dungeonStartTime}");
@@ -195,7 +197,7 @@ internal class DungeonInstance {
                 bossFightStartTime = DateTime.UtcNow.Ticks / 10000;
                 Plugin.logger.LogInfo($"boss engaged {mapNetID}: {bossFightStartTime}");
 
-                if (bossSpawner && bossSpawner._spawnedCreeps.Count > 0) {
+                if (bossSpawner?.NC()?._spawnedCreeps.Count > 0) {
                     bossEntity = bossSpawner._spawnedCreeps[0];
                     bossEntityNetID = bossEntity.netId;
 
@@ -254,7 +256,7 @@ internal class DungeonInstance {
                 }
             }
 
-            if (bossSpawner && bossSpawner._spawnedCreeps.Count != 0 && bossSpawner._spawnedCreeps[0] != null) {
+            if (bossSpawner != null && bossSpawner._spawnedCreeps.Count != 0 && bossSpawner._spawnedCreeps[0] != null) {
 
                 if (bossEntity == null) {
                     bossEntity = bossSpawner._spawnedCreeps[0];
@@ -264,7 +266,7 @@ internal class DungeonInstance {
                 if (bossEntity._aggroedEntity != null) {
 
                     bossFightStartTime = DateTime.UtcNow.Ticks / 10000;
-                    Plugin.logger.LogInfo($"field boss engaged {bossFightStartTime}");
+                    Plugin.logger?.LogInfo($"field boss engaged {bossFightStartTime}");
 
                     if (bossEntity.Network_aggroedEntity._isPlayer)
                         RecordDamage(bossEntity.Network_aggroedEntity._isPlayer, 0, true);
@@ -276,15 +278,15 @@ internal class DungeonInstance {
                 }
             }
         }
-        if (bossFightStartTime > 0 && bossFightEndTime == 0 && bossEntity._statusEntity._currentHealth <= 0) {
+        if (bossFightStartTime > 0 && bossFightEndTime == 0 && bossEntity?._statusEntity._currentHealth <= 0) {
             bossFightEndTime = DateTime.UtcNow.Ticks / 10000;
-            Plugin.logger.LogInfo("Field boss killed!");
+            Plugin.logger?.LogInfo("Field boss killed!");
             Print();
-            Plugin.logger.LogInfo(" ");
+            Plugin.logger?.LogInfo(" ");
 
             if (!Plugin._SoloMode && Plugin._AmServer) {
                 sendPacket();
-                Plugin.logger.LogDebug("Sent final update packet");
+                Plugin.logger?.LogDebug("Sent final update packet");
             }
 
             if (Plugin._SoloMode && DPSUI_Config.speedyBoiMode.Value) {
@@ -303,8 +305,8 @@ internal class DungeonInstance {
         }
     }
 
-    public void RecordDamage(Player player, int damage, bool isBossDamage) {
-        if (!player)
+    public void RecordDamage(Player? player, int damage, bool isBossDamage) {
+        if (player?.NC() == null)
             return;
 
         if (isBossDamage) {

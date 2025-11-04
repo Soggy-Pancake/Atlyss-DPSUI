@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CodeTalker.Packets;
+using Mirror;
 using Newtonsoft.Json;
+using static CodeTalker.Compressors.Compressors;
 
 namespace Atlyss_DPSUI;
 
@@ -21,8 +23,8 @@ public struct PacketPlayer {
 
     public uint netId;
     public uint color;
-    public string nickname;
-    public string icon;
+    public string nickname = "";
+    public string icon = "";
 
     public PacketPlayer() { } // Prevent json instantiation fuckery
 
@@ -58,7 +60,11 @@ public class BinaryDPSPacket : BinaryPacketBase {
     public List<DPSValues> bossDamageValues;
     public List<DPSValues> partyDamageValues;
 
-    public BinaryDPSPacket() { }
+    public BinaryDPSPacket() {
+        players = [];
+        bossDamageValues = [];
+        partyDamageValues = [];
+    }
 
     internal BinaryDPSPacket(DungeonInstance instance) {
         mapNetID = instance.mapNetID;
@@ -157,26 +163,27 @@ public class BinaryDPSPacket : BinaryPacketBase {
         writer.Write(bossTeleportTime);
         writer.Write(bossFightStartTime);
         writer.Write(bossFightEndTime);
-        writer.Write(unchecked((byte)players.Count));
+        writer.Write(unchecked((byte)(players?.Count ?? 0)));
 
-        foreach (var p in players) {
-            writer.Write(p.netId);
-            writer.Write(p.color);
-            writer.Write(Encoding.UTF8.GetBytes(p.nickname));
-            writer.Write((byte)0); // String null terminator
-            writer.Write(Encoding.UTF8.GetBytes(p.icon));
-            writer.Write((byte)0); // String null terminator
-        }
+        if (players != null)
+            foreach (var p in players) {
+                writer.Write(p.netId);
+                writer.Write(p.color);
+                writer.Write(Encoding.UTF8.GetBytes(p.nickname));
+                writer.Write((byte)0); // String null terminator
+                writer.Write(Encoding.UTF8.GetBytes(p.icon));
+                writer.Write((byte)0); // String null terminator
+            }
 
         writer.Write(unchecked((byte)bossDamageValues.Count));
         foreach (var dmg in bossDamageValues) {
-            writer.Write(unchecked((byte)players.FindIndex(p => p.netId == dmg.netId)));
+            writer.Write(unchecked((byte)(players?.FindIndex(p => p.netId == dmg.netId) ?? -1)));
             writer.Write(dmg.totalDamage);
         }
 
         writer.Write(unchecked((byte)partyDamageValues.Count));
         foreach (var dmg in partyDamageValues) {
-            writer.Write(unchecked((byte)players.FindIndex(p => p.netId == dmg.netId)));
+            writer.Write(unchecked((byte)(players?.FindIndex(p => p.netId == dmg.netId) ?? -1)));
             writer.Write(dmg.totalDamage);
         }
 

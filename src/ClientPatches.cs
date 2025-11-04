@@ -117,18 +117,18 @@ internal class ClientPatches {
 
         float dps = totalDamage / Mathf.Max(0.5f, currentTime - lastHitTime);
         Plugin.logger.LogDebug($"Hits tracked: {localDamage.Count} Current hit dmg value: {_value} total time between last valid hit and current: {currentTime - lastHitTime}");
-        DPSUI_GUI._UI.UpdateDPS(dps);
+        DPSUI_GUI._UI?.UpdateDPS(dps);
     }
 
     [HarmonyPatch(typeof(PlayerInteract), "Cmd_InteractWithPortal")]
     [HarmonyPrefix]
     private static void ClientPortalInteraction(Portal _portal, ZoneDifficulty _setDifficulty) {
-        Plugin.logger.LogDebug("Portal interaction! portal tag: " + _portal.NC()._scenePortal?._spawnPointTag);
-        if (_portal.NC()?._scenePortal == null)
+        Plugin.logger.LogDebug("Portal interaction! portal tag: " + _portal?.NC()?._scenePortal?._spawnPointTag);
+        if (_portal?.NC()?._scenePortal == null)
             return;
 
-        Player player = Player._mainPlayer.NC();
-        if (player != null && player.Network_playerZoneType == ZoneType.Dungeon && _portal._scenePortal._spawnPointTag == "fortSpawn") {
+        Player? player = Player._mainPlayer.NC();
+        if (player?.Network_playerZoneType == ZoneType.Dungeon && _portal?._scenePortal._spawnPointTag == "fortSpawn") {
             BinaryDPSPacket lastDPSPacket = Plugin.lastDPSPacket;
             if (lastDPSPacket != null && lastDPSPacket.bossFightEndTime == 0)
                 Plugin.logger.LogDebug("Portaled out of finished dungeon!");
