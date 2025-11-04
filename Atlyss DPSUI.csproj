@@ -44,7 +44,6 @@
 		<Reference Include="$(DependsDir)\Newtonsoft*.dll" Private="False" />
 
 		<!-- Plugin References -->
-		<Reference Include="$(PluginsDir)\Robyn-CodeTalker\CodeTalker.dll" Private="False" />
 		<Reference Include="$(PluginsDir)\Nessie-EasySettings\EasySettings.dll" Private="False" />
 	</ItemGroup>
 
