@@ -29,7 +29,7 @@ internal class ClientPatches {
             _helloRetryLast = Time.time;
 
             //CodeTalkerNetwork.SendNetworkPacket(packet);
-            CodeTalkerNetwork.SendBinaryNetworkPacket(bPacket);
+            CodeTalkerNetwork.SendNetworkPacket(bPacket);
         }
     }
 

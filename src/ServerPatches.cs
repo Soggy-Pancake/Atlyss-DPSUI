@@ -16,7 +16,7 @@ internal class ServerPatches {
         if (packet is BinaryClientHelloPacket dPSClientHelloPacket && Player._mainPlayer.NC()?.Network_isHostPlayer == true && !header.SenderIsLobbyOwner) {
             Plugin.logger.LogDebug("Server replying to client! BINARY (" + dPSClientHelloPacket.nickname + ")");
 
-            CodeTalkerNetwork.SendBinaryNetworkPacket(new BinaryServerHelloPacket());
+            CodeTalkerNetwork.SendNetworkPacket(new BinaryServerHelloPacket());
         }
     }
 
