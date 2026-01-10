@@ -6,7 +6,7 @@ using System.Text;
 using CodeTalker.Packets;
 using Mirror;
 using Newtonsoft.Json;
-using static CodeTalker.Compressors.Compressors;
+using static CodeTalker.Compressors;
 
 namespace Atlyss_DPSUI;
 
