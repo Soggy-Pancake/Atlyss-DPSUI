@@ -71,6 +71,7 @@ internal static class DPSUI_Config {
 
     [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
     private static void addEasySettings() {
+        Settings.OnApplySettings.AddListener(() => { config.Save(); });
         Settings.OnInitialized.AddListener(ActuallyAdd);
 
         void ActuallyAdd() {
