@@ -1,3 +1,8 @@
+## 1.1.2
+
+- Updated to support 12026.a3 update
+	- Changes to bossRoomTeleporter broke it
+
 ## 1.1.1
 
 - Tripple 1s!
