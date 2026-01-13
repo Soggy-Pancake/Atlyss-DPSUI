@@ -14,7 +14,7 @@ internal class ServerPatches {
 
     internal static void Server_RecieveHello(PacketHeader header, BinaryPacketBase packet) {
         if (packet is BinaryClientHelloPacket dPSClientHelloPacket && Player._mainPlayer.NC()?.Network_isHostPlayer == true && !header.SenderIsLobbyOwner) {
-            Plugin.logger.LogDebug("Server replying to client! BINARY (" + dPSClientHelloPacket.nickname + ")");
+            Plugin.logger.LogDebug($"Server replying to client! Client name: {dPSClientHelloPacket.nickname}");
 
             CodeTalkerNetwork.SendNetworkPacket(new BinaryServerHelloPacket());
         }
