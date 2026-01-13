@@ -113,7 +113,7 @@ public class Plugin : BaseUnityPlugin {
         _harmony.PatchAll(typeof(ServerPatches));
         logger.LogInfo("Patch successful! Registering network listeners...");
 
-        CodeTalkerNetwork.RegisterBinaryListener<BinaryClientHelloPacket>(ServerPatches.Server_RecieveBinaryHello);
+        CodeTalkerNetwork.RegisterBinaryListener<BinaryClientHelloPacket>(ServerPatches.Server_RecieveHello);
 
         if (!Environment.GetCommandLineArgs().Contains("-server")) {
             _harmony.PatchAll(typeof(ClientPatches));

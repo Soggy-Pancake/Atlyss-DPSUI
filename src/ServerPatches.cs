@@ -12,7 +12,7 @@ namespace Atlyss_DPSUI;
 
 internal class ServerPatches {
 
-    internal static void Server_RecieveBinaryHello(PacketHeader header, BinaryPacketBase packet) {
+    internal static void Server_RecieveHello(PacketHeader header, BinaryPacketBase packet) {
         if (packet is BinaryClientHelloPacket dPSClientHelloPacket && Player._mainPlayer.NC()?.Network_isHostPlayer == true && !header.SenderIsLobbyOwner) {
             Plugin.logger.LogDebug("Server replying to client! BINARY (" + dPSClientHelloPacket.nickname + ")");
 
