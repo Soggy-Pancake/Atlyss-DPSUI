@@ -136,7 +136,7 @@ public class DPSUI_GUI : Boolable {
 
     public static Font UI_font;
 
-    public static Vector2 DPS_Pos = new Vector2(0.61f, 0.14f);
+    public static Vector2 DPS_Pos = new Vector2(0.61f, 0.12f);
     public static Vector2 PartyDPS_MinPos = new Vector2(0.85f, 0.35f);
     public static Vector2 PartyDPS_MaxPos = new Vector2(1f, 0.65f);
     public static Vector2 PartyDPS_TotalPos = new Vector2(0.05f, 0.95f);
@@ -309,14 +309,14 @@ public class DPSUI_GUI : Boolable {
             setupMainCanvas(rootCanvas);
             Plugin.logger.LogInfo($"root {rootCanvas}");
             GameObject localDPSContainer = new GameObject("localDPS", typeof(RectTransform));
-            RectTransform obj = setupRectTransform(localDPSContainer, DPS_Pos, rootCanvas);
-            obj.sizeDelta = new Vector2(150f, 50f);
-            obj.anchoredPosition = Vector2.zero;
-            localDpsTransform = obj;
+            RectTransform rt = setupRectTransform(localDPSContainer, DPS_Pos, rootCanvas);
+            rt.sizeDelta = Vector2.zero;
+            rt.anchoredPosition = Vector2.zero;
+            localDpsTransform = rt;
 
             GameObject localDPSText = new GameObject("DpsText", typeof(Text));
-            setupRectTransform(localDPSText, Vector2.right, localDPSContainer);
-            localDpsText = setupText(localDPSText, 25);
+            rt = setupRectTransform(localDPSText, Vector2.right, localDPSContainer, ignoreParentRect: true);
+            localDpsText = setupText(localDPSText, 22);
             if (localDpsText != null)
                 localDpsText.text = "0 DPS";
 
@@ -425,8 +425,10 @@ public class DPSUI_GUI : Boolable {
         void setupMainCanvas(GameObject canvasObj) {
             setupRectTransform(canvasObj, Vector2.zero, ((Component)InGameUI._current).gameObject, ignoreParentRect: true);
             Canvas component = canvasObj.GetComponent<Canvas>();
+            CanvasScaler scaler = canvasObj.GetComponent<CanvasScaler>();
             component.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasObj.GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
             rootCanvas = component;
         }
     }
