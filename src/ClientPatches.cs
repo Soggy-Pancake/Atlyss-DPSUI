@@ -82,9 +82,9 @@ internal class ClientPatches {
         }
     }
 
-    [HarmonyPatch(typeof(StatusEntityGUI), "UserCode_Target_Display_FloatingNumber__StatusEntity__FloatTextColor__Int32__Int32__Int32")]
+    [HarmonyPatch(typeof(StatusEntityGUI), "UserCode_Target_Display_FloatingNumber__StatusEntity__FloatTextColor__Int32__Int32")]
     [HarmonyPostfix]
-    private static void TrackOwnDamage(StatusEntity _followObj, FloatTextColor _floatTextColor, int _value, int _combatElementID, int _conditionGroupID) {
+    private static void TrackOwnDamage(StatusEntity _followObj, FloatTextColor _floatTextColor, int _value, int _combatElementID) {
         if (!Player._mainPlayer || _followObj == Player._mainPlayer.NC()?._statusEntity || _floatTextColor == FloatTextColor.MISS || _floatTextColor == FloatTextColor.EXPERIENCE || _floatTextColor == FloatTextColor.HEAL) {
             return;
         }
